@@ -38,3 +38,14 @@ body {
 .montant {
   font-variant-numeric: tabular-nums;
 }
+
+/* Impression des factures : A4, sans fond ni éléments d'interface */
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+  body {
+    background: #fff;
+  }
+}

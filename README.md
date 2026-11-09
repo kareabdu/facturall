@@ -109,6 +109,32 @@ Garanties assurées par la base :
 > Le plan de base reprend les comptes principaux du SYSCOHADA révisé ; faites valider les intitulés et
 > les sous-comptes (notamment 55x monnaie électronique) par votre expert-comptable.
 
+## Ventes (gestion commerciale)
+
+Menu **Ventes** : factures et devis, clients, articles et TVA.
+
+- **Clients** : code automatique `CL0001`… ; « Clients divers » (CL0000) pour le comptoir. Situation par client
+  (reste dû, échu).
+- **Articles** : bien ou service, unité, prix HT, taux de TVA ; compte de vente 701 (biens) / 706 (services)
+  ou compte spécifique.
+- **TVA** : 18 % et « Exonéré » créés d'office (19 % au Niger) ; d'autres taux peuvent être ajoutés
+  (comptes 4431 collectée / 4452 déductible).
+- **Devis** `DV-2026-00001` → transformable en facture. **Facture** `FA-2026-00001` : brouillon modifiable,
+  puis validée (numéro continu, plus modifiable). Impression A4 / PDF avec ventilation de TVA et montant en lettres.
+- **Règlements** partiels ou totaux (espèces, Mobile Money, virement, chèque…), dès la validation ou plus tard.
+- **Avoir** `AV-2026-00001` : annule une facture non encore réglée.
+
+Écritures générées automatiquement au journal **VT** et aux journaux de trésorerie :
+
+| Opération | Écriture |
+|---|---|
+| Facture validée | 411 client (D, TTC) / 70x (C, HT) / 443x TVA collectée (C) |
+| Règlement | 521, 571 ou 552 (D) / 411 client (C) |
+| Avoir | écriture inverse de la facture |
+
+Droits : vendeurs = factures et règlements sur leurs boutiques ; catalogue, TVA et avoirs = propriétaire, admin,
+comptable, gestionnaire.
+
 ## Conventions
 
 - Montants en **entiers XOF** (pas de centimes) : `formaterXOF`, `lireMontantXOF`, `arrondirXOF` dans `@facturall/core`.

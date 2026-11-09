@@ -20,7 +20,7 @@ interface Lien {
 
 const LIENS: Lien[] = [
   { href: "/tableau-de-bord", libelle: "Tableau de bord" },
-  { href: "#ventes", libelle: "Ventes", bientot: true },
+  { href: "/ventes", libelle: "Ventes" },
   { href: "#achats", libelle: "Achats", bientot: true },
   { href: "#stock", libelle: "Stock", bientot: true },
   { href: "/comptabilite", libelle: "Comptabilité", visible: peutLireCompta },
@@ -46,7 +46,7 @@ export function BarreLaterale() {
   const boutiquesActives = boutiques.filter((b) => b.active);
 
   return (
-    <aside className="border-b border-border bg-surface md:sticky md:top-0 md:flex md:h-screen md:w-64 md:flex-col md:border-b-0 md:border-r">
+    <aside className="print:hidden border-b border-border bg-surface md:sticky md:top-0 md:flex md:h-screen md:w-64 md:flex-col md:border-b-0 md:border-r">
       <div className="flex items-center justify-between px-4 py-4">
         <Logo />
         <button
