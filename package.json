@@ -1,0 +1,18 @@
+{
+  "name": "facturall",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@12.18.0",
+  "scripts": {
+    "dev:web": "pnpm --dir apps/web dev",
+    "dev:mobile": "pnpm --dir apps/mobile start",
+    "build:web": "pnpm --dir apps/web build",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test:db": "node supabase/tests/socle.test.mjs && node supabase/tests/comptabilite.test.mjs",
+    "db:push": "npx supabase@latest db push",
+    "db:types": "npx supabase@latest gen types typescript --project-id zbnjiohihyxsmthtwver > packages/core/src/database.types.ts"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.15"
+  }
+}
