@@ -124,10 +124,14 @@ function Editeur({
   const [envoi, setEnvoi] = useState<"brouillon" | "valider" | null>(null);
   const [confirmation, setConfirmation] = useState(false);
   const [encaisser, setEncaisser] = useState(true);
+  // null = montant total TTC ; sinon acompte saisi
+  const [montantRecu, setMontantRecu] = useState<number | null>(null);
+  const [referenceReglement, setReferenceReglement] = useState("");
   const [journalId, setJournalId] = useState(tresoreries.find((j) => j.type === "caisse")?.id ?? "");
   const [mode, setMode] = useState<ModeReglement>("especes");
 
   const totaux = totauxDocument(lignes, tauxParId, tauxDefaut, articleParId);
+  const montantEncaisse = montantRecu ?? totaux.ttc;
   const boutiquesActives = boutiques.filter((b) => b.active);
   const articlesActifs = articles.filter((a) => a.actif);
   const tauxActifs = taux.filter((t) => t.actif);
@@ -176,7 +180,9 @@ function Editeur({
         await validerDocument(
           supabase,
           id,
-          type === "facture" && encaisser && journalId ? { montant: totaux.ttc, journal_id: journalId, mode } : null,
+          type === "facture" && encaisser && journalId && montantEncaisse > 0
+            ? { montant: montantEncaisse, journal_id: journalId, mode, reference: referenceReglement.trim() || null }
+            : null,
         );
       }
       if (brouillon) onEnregistre();
@@ -342,10 +348,27 @@ function Editeur({
             </p>
             <label className="flex items-center gap-2 text-sm font-medium">
               <input type="checkbox" className="accent-primary" checked={encaisser} onChange={(e) => setEncaisser(e.target.checked)} />
-              Le client paie maintenant ({formaterXOF(totaux.ttc)})
+              Le client paie maintenant (en tout ou en partie)
             </label>
             {encaisser && (
               <div className="grid gap-4 sm:grid-cols-2">
+                <div className="flex flex-col gap-1">
+                  <ChampMontant
+                    libelle={`Montant reçu (total : ${formaterXOF(totaux.ttc)})`}
+                    valeur={montantEncaisse}
+                    onChange={(v) => setMontantRecu(v)}
+                  />
+                  {montantEncaisse > totaux.ttc ? (
+                    <span className="text-xs text-danger">Supérieur au total de la facture.</span>
+                  ) : montantEncaisse > 0 && montantEncaisse < totaux.ttc ? (
+                    <span className="text-xs text-muted">Acompte : il restera {formaterXOF(totaux.ttc - montantEncaisse)} à payer.</span>
+                  ) : null}
+                </div>
+                <Champ
+                  libelle="Référence (n° transaction…)"
+                  value={referenceReglement}
+                  onChange={(e) => setReferenceReglement(e.target.value)}
+                />
                 <Liste libelle="Encaissé sur" value={journalId} onChange={(e) => setJournalId(e.target.value)}>
                   {tresoreries.map((j) => <option key={j.id} value={j.id}>{j.libelle}</option>)}
                 </Liste>
@@ -358,7 +381,11 @@ function Editeur({
             )}
             <div className="flex justify-end gap-3">
               <Bouton variante="secondaire" onClick={() => setConfirmation(false)}>Retour</Bouton>
-              <Bouton chargement={envoi === "valider"} onClick={() => void enregistrer(true)}>
+              <Bouton
+                chargement={envoi === "valider"}
+                disabled={encaisser && (montantEncaisse <= 0 || montantEncaisse > totaux.ttc)}
+                onClick={() => void enregistrer(true)}
+              >
                 Valider{encaisser ? " et encaisser" : ""}
               </Bouton>
             </div>

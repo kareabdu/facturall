@@ -36,7 +36,12 @@ export function ChampMontant({
       value={affiche}
       placeholder={placeholder}
       disabled={disabled}
-      onFocus={() => setTexte(valeur ? String(valeur) : "")}
+      onFocus={(e) => {
+        setTexte(valeur ? String(valeur) : "");
+        // Tout sélectionner : taper un chiffre remplace le montant prérempli
+        const champ = e.currentTarget;
+        requestAnimationFrame(() => champ.select());
+      }}
       onChange={(e) => {
         setTexte(e.target.value);
         const v = lireMontantXOF(e.target.value);
