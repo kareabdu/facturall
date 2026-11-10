@@ -11,5 +11,6 @@ export * from "./stock";
 export * from "./design";
 export * from "./resume";
 export * from "./caisse";
+export * from "./rapprochement";
 export * from "./lettres";
 export type { Database } from "./database.types";

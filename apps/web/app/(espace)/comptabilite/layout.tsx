@@ -12,6 +12,7 @@ const ONGLETS = [
   { href: "/comptabilite/operation", libelle: "Recette / dépense", saisie: true },
   { href: "/comptabilite/saisie", libelle: "Saisie avancée", saisie: true },
   { href: "/comptabilite/balance", libelle: "Balance et grand livre" },
+  { href: "/comptabilite/rapprochement", libelle: "Rapprochement bancaire" },
   { href: "/comptabilite/plan", libelle: "Plan et journaux" },
 ];
 

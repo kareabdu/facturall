@@ -1200,6 +1200,60 @@ export type Database = {
           },
         ]
       }
+      lignes_releve: {
+        Row: {
+          date_operation: string
+          ecriture_ligne_id: string | null
+          entreprise_id: string
+          id: string
+          libelle: string
+          montant: number
+          ordre: number
+          pointee_le: string | null
+          reference: string | null
+          releve_id: string
+        }
+        Insert: {
+          date_operation: string
+          ecriture_ligne_id?: string | null
+          entreprise_id: string
+          id?: string
+          libelle: string
+          montant: number
+          ordre: number
+          pointee_le?: string | null
+          reference?: string | null
+          releve_id: string
+        }
+        Update: {
+          date_operation?: string
+          ecriture_ligne_id?: string | null
+          entreprise_id?: string
+          id?: string
+          libelle?: string
+          montant?: number
+          ordre?: number
+          pointee_le?: string | null
+          reference?: string | null
+          releve_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lignes_releve_ecriture_ligne_id_fkey"
+            columns: ["ecriture_ligne_id"]
+            isOneToOne: false
+            referencedRelation: "ecriture_lignes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lignes_releve_releve_id_entreprise_id_fkey"
+            columns: ["releve_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "releves_bancaires"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+        ]
+      }
       lignes_transferts_stock: {
         Row: {
           article_id: string
@@ -1808,6 +1862,81 @@ export type Database = {
           },
         ]
       }
+      releves_bancaires: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          date_debut: string
+          date_fin: string
+          entreprise_id: string
+          fichier: string | null
+          id: string
+          journal_id: string
+          notes: string | null
+          numero: string | null
+          solde_final: number
+          solde_initial: number
+          source: string
+          statut: string
+          updated_at: string
+          valide_le: string | null
+          valide_par: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          date_debut: string
+          date_fin: string
+          entreprise_id: string
+          fichier?: string | null
+          id?: string
+          journal_id: string
+          notes?: string | null
+          numero?: string | null
+          solde_final?: number
+          solde_initial?: number
+          source?: string
+          statut?: string
+          updated_at?: string
+          valide_le?: string | null
+          valide_par?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          date_debut?: string
+          date_fin?: string
+          entreprise_id?: string
+          fichier?: string | null
+          id?: string
+          journal_id?: string
+          notes?: string | null
+          numero?: string | null
+          solde_final?: number
+          solde_initial?: number
+          source?: string
+          statut?: string
+          updated_at?: string
+          valide_le?: string | null
+          valide_par?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "releves_bancaires_entreprise_id_fkey"
+            columns: ["entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "entreprises"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "releves_bancaires_journal_id_entreprise_id_fkey"
+            columns: ["journal_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "journaux"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+        ]
+      }
       stocks: {
         Row: {
           article_id: string
@@ -2015,6 +2144,10 @@ export type Database = {
           total_debit: number
         }[]
       }
+      comptabiliser_ligne_releve: {
+        Args: { p_compte_id: string; p_libelle?: string; p_ligne_id: string }
+        Returns: string
+      }
       contre_passer_ecriture: {
         Args: { p_date?: string; p_ecriture_id: string; p_libelle?: string }
         Returns: string
@@ -2069,6 +2202,10 @@ export type Database = {
           p_type: string
         }
         Returns: string
+      }
+      depointer_ligne_releve: {
+        Args: { p_ligne_id: string }
+        Returns: undefined
       }
       disponibilites_stock: {
         Args: { p_boutique_id: string; p_entreprise_id: string }
@@ -2167,6 +2304,23 @@ export type Database = {
         }
         Returns: string
       }
+      enregistrer_releve: {
+        Args: {
+          p_date_debut: string
+          p_date_fin: string
+          p_entreprise_id: string
+          p_fichier?: string
+          p_journal_id: string
+          p_lignes?: Json
+          p_notes?: string
+          p_releve_id?: string
+          p_solde_final: number
+          p_solde_initial: number
+          p_source?: string
+        }
+        Returns: string
+      }
+      etat_rapprochement: { Args: { p_releve_id: string }; Returns: Json }
       grand_livre: {
         Args: {
           p_compte_id: string
@@ -2231,6 +2385,26 @@ export type Database = {
         }
         Returns: undefined
       }
+      operations_a_pointer: {
+        Args: { p_date_fin?: string; p_journal_id: string }
+        Returns: {
+          date_ecriture: string
+          ecriture_id: string
+          ecriture_ligne_id: string
+          libelle: string
+          montant: number
+          numero: string
+          reference: string
+        }[]
+      }
+      pointer_ligne_releve: {
+        Args: { p_ecriture_ligne_id: string; p_ligne_id: string }
+        Returns: undefined
+      }
+      rapprocher_automatiquement: {
+        Args: { p_releve_id: string; p_tolerance_jours?: number }
+        Returns: number
+      }
       situation_clients: {
         Args: { p_entreprise_id: string }
         Returns: {
@@ -2271,6 +2445,11 @@ export type Database = {
         Args: { p_inventaire_id: string }
         Returns: undefined
       }
+      supprimer_ligne_releve: {
+        Args: { p_ligne_id: string }
+        Returns: undefined
+      }
+      supprimer_releve: { Args: { p_releve_id: string }; Returns: undefined }
       transferer_stock: {
         Args: {
           p_date?: string
@@ -2293,6 +2472,7 @@ export type Database = {
       }
       valider_ecriture: { Args: { p_ecriture_id: string }; Returns: string }
       valider_inventaire: { Args: { p_inventaire_id: string }; Returns: string }
+      valider_releve: { Args: { p_releve_id: string }; Returns: string }
     }
     Enums: {
       role_membre:

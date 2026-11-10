@@ -8,7 +8,7 @@
     "dev:mobile": "pnpm --dir apps/mobile start",
     "build:web": "pnpm --dir apps/web build",
     "typecheck": "pnpm -r --if-present typecheck",
-    "test:db": "node supabase/tests/socle.test.mjs && node supabase/tests/comptabilite.test.mjs && node supabase/tests/ventes.test.mjs && node supabase/tests/achats.test.mjs && node supabase/tests/stock.test.mjs",
+    "test:db": "node supabase/tests/socle.test.mjs && node supabase/tests/comptabilite.test.mjs && node supabase/tests/ventes.test.mjs && node supabase/tests/achats.test.mjs && node supabase/tests/stock.test.mjs && node supabase/tests/rapprochement.test.mjs",
     "db:push": "npx supabase@latest db push",
     "db:types": "npx supabase@latest gen types typescript --project-id zbnjiohihyxsmthtwver > packages/core/src/database.types.ts"
   },

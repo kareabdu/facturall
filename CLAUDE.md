@@ -83,10 +83,13 @@ TVA par défaut : 18 % (UEMOA), 19 % au Niger, plus « Exonéré ».
 Fait : socle (entreprises, boutiques, membres, invitations), comptabilité (plan, journaux, exercices, saisie simple
 et avancée, balance, grand livre), ventes (clients, articles, TVA, devis, factures, règlements, avoirs, impression),
 achats (fournisseurs, factures fournisseurs, paiements, avoirs), stock (articles suivis, CMUP par boutique, mouvements
-automatiques à la validation des factures et avoirs, entrées/sorties manuelles, transferts, inventaires).
+automatiques à la validation des factures et avoirs, entrées/sorties manuelles, transferts, inventaires),
+design (palette partagée `@facturall/core/design`, mode sombre auto/manuel, logo), mobile : vente au comptoir
+(onglet Vendre, `@facturall/core` `caisse`, ticket partageable) et trésorerie (onglet Caisse), rapprochement bancaire
+(`releves_bancaires`, `lignes_releve`, import CSV / Excel ou saisie, pointage manuel et automatique, frais
+comptabilisés depuis le relevé, état de rapprochement, validation RB-AAAA-NNNNN).
 
 À faire, dans l'ordre prévu :
-1. Ventes et caisse sur **mobile** (encaissement rapide, ticket).
-2. **Rapprochement bancaire** : import CSV / Excel / PDF ou saisie manuelle, pointage avec les écritures 52x/55x/57x.
-3. Clôture d'exercice et états financiers SYSCOHADA (bilan, compte de résultat), dont la variation de stock
+1. Lecture des relevés **PDF** (aujourd'hui : CSV / Excel .xlsx ou saisie manuelle).
+2. Clôture d'exercice et états financiers SYSCOHADA (bilan, compte de résultat), dont la variation de stock
    (603x / 3x, inventaire intermittent) à partir de la valorisation CMUP.
