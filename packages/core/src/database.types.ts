@@ -1,6 +1,3 @@
-// Généré depuis le projet Supabase « facturall » (ne pas modifier à la main).
-// Pour régénérer : pnpm db:types
-
 export type Json =
   | string
   | number
@@ -249,6 +246,120 @@ export type Database = {
           },
         ]
       }
+      documents_achat: {
+        Row: {
+          boutique_id: string
+          created_at: string
+          created_by: string | null
+          date_document: string
+          date_echeance: string | null
+          document_origine_id: string | null
+          ecriture_id: string | null
+          entreprise_id: string
+          fournisseur_id: string
+          id: string
+          montant_avoir: number
+          montant_paye: number
+          notes: string | null
+          numero: string | null
+          numero_fournisseur: string | null
+          statut: string
+          total_ht: number
+          total_ttc: number
+          total_tva: number
+          type: string
+          updated_at: string
+          valide_le: string | null
+          valide_par: string | null
+        }
+        Insert: {
+          boutique_id: string
+          created_at?: string
+          created_by?: string | null
+          date_document?: string
+          date_echeance?: string | null
+          document_origine_id?: string | null
+          ecriture_id?: string | null
+          entreprise_id: string
+          fournisseur_id: string
+          id?: string
+          montant_avoir?: number
+          montant_paye?: number
+          notes?: string | null
+          numero?: string | null
+          numero_fournisseur?: string | null
+          statut?: string
+          total_ht?: number
+          total_ttc?: number
+          total_tva?: number
+          type: string
+          updated_at?: string
+          valide_le?: string | null
+          valide_par?: string | null
+        }
+        Update: {
+          boutique_id?: string
+          created_at?: string
+          created_by?: string | null
+          date_document?: string
+          date_echeance?: string | null
+          document_origine_id?: string | null
+          ecriture_id?: string | null
+          entreprise_id?: string
+          fournisseur_id?: string
+          id?: string
+          montant_avoir?: number
+          montant_paye?: number
+          notes?: string | null
+          numero?: string | null
+          numero_fournisseur?: string | null
+          statut?: string
+          total_ht?: number
+          total_ttc?: number
+          total_tva?: number
+          type?: string
+          updated_at?: string
+          valide_le?: string | null
+          valide_par?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_achat_boutique_id_entreprise_id_fkey"
+            columns: ["boutique_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "boutiques"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+          {
+            foreignKeyName: "documents_achat_document_origine_id_entreprise_id_fkey"
+            columns: ["document_origine_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "documents_achat"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+          {
+            foreignKeyName: "documents_achat_ecriture_id_entreprise_id_fkey"
+            columns: ["ecriture_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "ecritures"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+          {
+            foreignKeyName: "documents_achat_entreprise_id_fkey"
+            columns: ["entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "entreprises"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_achat_fournisseur_id_entreprise_id_fkey"
+            columns: ["fournisseur_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "fournisseurs"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+        ]
+      }
       documents_vente: {
         Row: {
           boutique_id: string
@@ -371,6 +482,7 @@ export type Database = {
           debit: number
           ecriture_id: string
           entreprise_id: string
+          fournisseur_id: string | null
           id: string
           libelle: string | null
           ordre: number
@@ -382,6 +494,7 @@ export type Database = {
           debit?: number
           ecriture_id: string
           entreprise_id: string
+          fournisseur_id?: string | null
           id?: string
           libelle?: string | null
           ordre: number
@@ -393,6 +506,7 @@ export type Database = {
           debit?: number
           ecriture_id?: string
           entreprise_id?: string
+          fournisseur_id?: string | null
           id?: string
           libelle?: string | null
           ordre?: number
@@ -417,6 +531,13 @@ export type Database = {
             columns: ["ecriture_id", "entreprise_id"]
             isOneToOne: false
             referencedRelation: "ecritures"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+          {
+            foreignKeyName: "ecriture_lignes_fournisseur_id_entreprise_id_fkey"
+            columns: ["fournisseur_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "fournisseurs"
             referencedColumns: ["id", "entreprise_id"]
           },
         ]
@@ -624,6 +745,71 @@ export type Database = {
           },
         ]
       }
+      fournisseurs: {
+        Row: {
+          actif: boolean
+          adresse: string | null
+          code: string
+          created_at: string
+          created_by: string | null
+          delai_paiement_jours: number | null
+          email: string | null
+          entreprise_id: string
+          id: string
+          identifiant_fiscal: string | null
+          nom: string
+          notes: string | null
+          rccm: string | null
+          telephone: string | null
+          updated_at: string
+          ville: string | null
+        }
+        Insert: {
+          actif?: boolean
+          adresse?: string | null
+          code: string
+          created_at?: string
+          created_by?: string | null
+          delai_paiement_jours?: number | null
+          email?: string | null
+          entreprise_id: string
+          id?: string
+          identifiant_fiscal?: string | null
+          nom: string
+          notes?: string | null
+          rccm?: string | null
+          telephone?: string | null
+          updated_at?: string
+          ville?: string | null
+        }
+        Update: {
+          actif?: boolean
+          adresse?: string | null
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          delai_paiement_jours?: number | null
+          email?: string | null
+          entreprise_id?: string
+          id?: string
+          identifiant_fiscal?: string | null
+          nom?: string
+          notes?: string | null
+          rccm?: string | null
+          telephone?: string | null
+          updated_at?: string
+          ville?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fournisseurs_entreprise_id_fkey"
+            columns: ["entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "entreprises"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invitations: {
         Row: {
           acceptee_le: string | null
@@ -719,6 +905,92 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "entreprises"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      lignes_documents_achat: {
+        Row: {
+          article_id: string | null
+          compte_charge_id: string
+          designation: string
+          document_id: string
+          entreprise_id: string
+          id: string
+          montant_ht: number
+          montant_ttc: number
+          montant_tva: number
+          ordre: number
+          prix_unitaire: number
+          quantite: number
+          remise_pct: number
+          taux_tva: number
+          taux_tva_id: string | null
+          unite: string | null
+        }
+        Insert: {
+          article_id?: string | null
+          compte_charge_id: string
+          designation: string
+          document_id: string
+          entreprise_id: string
+          id?: string
+          montant_ht: number
+          montant_ttc: number
+          montant_tva: number
+          ordre: number
+          prix_unitaire: number
+          quantite: number
+          remise_pct?: number
+          taux_tva?: number
+          taux_tva_id?: string | null
+          unite?: string | null
+        }
+        Update: {
+          article_id?: string | null
+          compte_charge_id?: string
+          designation?: string
+          document_id?: string
+          entreprise_id?: string
+          id?: string
+          montant_ht?: number
+          montant_ttc?: number
+          montant_tva?: number
+          ordre?: number
+          prix_unitaire?: number
+          quantite?: number
+          remise_pct?: number
+          taux_tva?: number
+          taux_tva_id?: string | null
+          unite?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lignes_documents_achat_article_id_entreprise_id_fkey"
+            columns: ["article_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+          {
+            foreignKeyName: "lignes_documents_achat_compte_charge_id_entreprise_id_fkey"
+            columns: ["compte_charge_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "comptes"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+          {
+            foreignKeyName: "lignes_documents_achat_document_id_entreprise_id_fkey"
+            columns: ["document_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "documents_achat"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+          {
+            foreignKeyName: "lignes_documents_achat_taux_tva_id_entreprise_id_fkey"
+            columns: ["taux_tva_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "taux_tva"
+            referencedColumns: ["id", "entreprise_id"]
           },
         ]
       }
@@ -881,6 +1153,163 @@ export type Database = {
             columns: ["membre_id", "entreprise_id"]
             isOneToOne: false
             referencedRelation: "membres"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+        ]
+      }
+      paiements_fournisseurs: {
+        Row: {
+          boutique_id: string
+          created_at: string
+          created_by: string | null
+          date_paiement: string
+          document_id: string
+          ecriture_id: string
+          entreprise_id: string
+          fournisseur_id: string
+          id: string
+          journal_id: string
+          mode: string
+          montant: number
+          reference: string | null
+        }
+        Insert: {
+          boutique_id: string
+          created_at?: string
+          created_by?: string | null
+          date_paiement: string
+          document_id: string
+          ecriture_id: string
+          entreprise_id: string
+          fournisseur_id: string
+          id?: string
+          journal_id: string
+          mode: string
+          montant: number
+          reference?: string | null
+        }
+        Update: {
+          boutique_id?: string
+          created_at?: string
+          created_by?: string | null
+          date_paiement?: string
+          document_id?: string
+          ecriture_id?: string
+          entreprise_id?: string
+          fournisseur_id?: string
+          id?: string
+          journal_id?: string
+          mode?: string
+          montant?: number
+          reference?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "paiements_fournisseurs_boutique_id_entreprise_id_fkey"
+            columns: ["boutique_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "boutiques"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+          {
+            foreignKeyName: "paiements_fournisseurs_document_id_entreprise_id_fkey"
+            columns: ["document_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "documents_achat"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+          {
+            foreignKeyName: "paiements_fournisseurs_ecriture_id_entreprise_id_fkey"
+            columns: ["ecriture_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "ecritures"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+          {
+            foreignKeyName: "paiements_fournisseurs_entreprise_id_fkey"
+            columns: ["entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "entreprises"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "paiements_fournisseurs_fournisseur_id_entreprise_id_fkey"
+            columns: ["fournisseur_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "fournisseurs"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+          {
+            foreignKeyName: "paiements_fournisseurs_journal_id_entreprise_id_fkey"
+            columns: ["journal_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "journaux"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+        ]
+      }
+      parametres_achat: {
+        Row: {
+          compte_achats_biens_id: string
+          compte_achats_services_id: string
+          compte_fournisseurs_id: string
+          delai_paiement_jours: number
+          entreprise_id: string
+          journal_achats_id: string
+          updated_at: string
+        }
+        Insert: {
+          compte_achats_biens_id: string
+          compte_achats_services_id: string
+          compte_fournisseurs_id: string
+          delai_paiement_jours?: number
+          entreprise_id: string
+          journal_achats_id: string
+          updated_at?: string
+        }
+        Update: {
+          compte_achats_biens_id?: string
+          compte_achats_services_id?: string
+          compte_fournisseurs_id?: string
+          delai_paiement_jours?: number
+          entreprise_id?: string
+          journal_achats_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parametres_achat_compte_achats_biens_id_entreprise_id_fkey"
+            columns: ["compte_achats_biens_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "comptes"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+          {
+            foreignKeyName: "parametres_achat_compte_achats_services_id_entreprise_id_fkey"
+            columns: ["compte_achats_services_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "comptes"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+          {
+            foreignKeyName: "parametres_achat_compte_fournisseurs_id_entreprise_id_fkey"
+            columns: ["compte_fournisseurs_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "comptes"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+          {
+            foreignKeyName: "parametres_achat_entreprise_id_fkey"
+            columns: ["entreprise_id"]
+            isOneToOne: true
+            referencedRelation: "entreprises"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "parametres_achat_journal_achats_id_entreprise_id_fkey"
+            columns: ["journal_achats_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "journaux"
             referencedColumns: ["id", "entreprise_id"]
           },
         ]
@@ -1162,6 +1591,15 @@ export type Database = {
         Args: { p_date?: string; p_facture_id: string; p_motif: string }
         Returns: string
       }
+      creer_avoir_achat: {
+        Args: {
+          p_date?: string
+          p_facture_id: string
+          p_motif: string
+          p_numero_fournisseur?: string
+        }
+        Returns: string
+      }
       creer_compte: {
         Args: { p_entreprise_id: string; p_libelle: string; p_numero: string }
         Returns: string
@@ -1197,6 +1635,20 @@ export type Database = {
           p_entreprise_id: string
           p_libelle: string
           p_type: string
+        }
+        Returns: string
+      }
+      enregistrer_document_achat: {
+        Args: {
+          p_boutique_id: string
+          p_date: string
+          p_date_echeance?: string
+          p_document_id?: string
+          p_entreprise_id: string
+          p_fournisseur_id: string
+          p_lignes: Json
+          p_notes?: string
+          p_numero_fournisseur?: string
         }
         Returns: string
       }
@@ -1240,6 +1692,17 @@ export type Database = {
           p_montant: number
           p_reference?: string
           p_sens: string
+        }
+        Returns: string
+      }
+      enregistrer_paiement_fournisseur: {
+        Args: {
+          p_date?: string
+          p_document_id: string
+          p_journal_id: string
+          p_mode: string
+          p_montant: number
+          p_reference?: string
         }
         Returns: string
       }
@@ -1330,8 +1793,24 @@ export type Database = {
           total_regle: number
         }[]
       }
+      situation_fournisseurs: {
+        Args: { p_entreprise_id: string }
+        Returns: {
+          echu: number
+          fournisseur_id: string
+          nb_factures: number
+          reste_a_payer: number
+          total_avoir: number
+          total_facture: number
+          total_paye: number
+        }[]
+      }
       supprimer_brouillon: {
         Args: { p_ecriture_id: string }
+        Returns: undefined
+      }
+      supprimer_document_achat: {
+        Args: { p_document_id: string }
         Returns: undefined
       }
       supprimer_document_vente: {
@@ -1339,6 +1818,10 @@ export type Database = {
         Returns: undefined
       }
       transformer_devis: { Args: { p_devis_id: string }; Returns: string }
+      valider_document_achat: {
+        Args: { p_document_id: string; p_paiement?: Json }
+        Returns: string
+      }
       valider_document_vente: {
         Args: { p_document_id: string; p_reglement?: Json }
         Returns: string

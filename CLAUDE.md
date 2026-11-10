@@ -84,9 +84,8 @@ et avancée, balance, grand livre), ventes (clients, articles, TVA, devis, factu
 achats (fournisseurs, factures fournisseurs, paiements, avoirs).
 
 À faire, dans l'ordre prévu :
-1. Mettre à jour `database.types.ts` avec les tables d'achat (`pnpm db:types`).
-2. **Stock** : articles stockés, mouvements par boutique (entrées depuis les achats, sorties depuis les ventes),
+1. **Stock** : articles stockés, mouvements par boutique (entrées depuis les achats, sorties depuis les ventes),
    transferts entre boutiques, inventaire, valorisation (CMUP).
-3. Ventes et caisse sur **mobile** (encaissement rapide, ticket).
-4. **Rapprochement bancaire** : import CSV / Excel / PDF ou saisie manuelle, pointage avec les écritures 52x/55x/57x.
-5. Clôture d'exercice et états financiers SYSCOHADA (bilan, compte de résultat).
+2. Ventes et caisse sur **mobile** (encaissement rapide, ticket).
+3. **Rapprochement bancaire** : import CSV / Excel / PDF ou saisie manuelle, pointage avec les écritures 52x/55x/57x.
+4. Clôture d'exercice et états financiers SYSCOHADA (bilan, compte de résultat).
