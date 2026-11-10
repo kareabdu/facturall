@@ -212,7 +212,7 @@ function Releve({ releve, version, recharger }: { releve: ReleveBancaire; versio
   const cle = `${releve.id}|${version}`;
   const [donnees, setDonnees] = useState<{ cle: string; operations: OperationAPointer[]; etat: EtatRapprochement } | null>(null);
   const [erreur, setErreur] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<{ texte: string; type: "succes" | "info" } | null>(null);
   const [choisie, setChoisie] = useState<string | null>(null);
   const [recherche, setRecherche] = useState("");
   const [envoi, setEnvoi] = useState<string | null>(null);
@@ -249,13 +249,14 @@ function Releve({ releve, version, recharger }: { releve: ReleveBancaire; versio
   const calcule = releve.solde_initial + entrees - sorties;
   const equilibre = calcule === releve.solde_final;
 
+  /** Exécute une action ; le texte renvoyé s'affiche (préfixe « ~ » : simple information). */
   async function action(nom: string, fn: () => Promise<string | void>, apres?: () => void) {
     setErreur(null);
     setMessage(null);
     setEnvoi(nom);
     try {
       const m = await fn();
-      if (m) setMessage(m);
+      if (m) setMessage(m.startsWith("~") ? { texte: m.slice(1), type: "info" } : { texte: m, type: "succes" });
       apres?.();
       recharger();
     } catch (e) {
@@ -309,7 +310,7 @@ function Releve({ releve, version, recharger }: { releve: ReleveBancaire; versio
                 onClick={() =>
                   action("auto", async () => {
                     const n = await rapprocherAutomatiquement(supabase, releve.id);
-                    return n ? `${n} opération(s) pointée(s) automatiquement.` : "Aucune correspondance évidente : pointez à la main.";
+                    return n ? `${n} opération(s) pointée(s) automatiquement.` : "~Aucune correspondance évidente : pointez à la main.";
                   })
                 }
               >
@@ -329,7 +330,7 @@ function Releve({ releve, version, recharger }: { releve: ReleveBancaire; versio
 
       <div className="flex flex-col gap-4">
         {erreur && <Alerte>{erreur}</Alerte>}
-        {message && <Alerte type="succes">{message}</Alerte>}
+        {message && <Alerte type={message.type}>{message.texte}</Alerte>}
         {!brouillon && <Alerte type="succes">Relevé rapproché et validé le {formaterDate((releve.valide_le ?? "").slice(0, 10))} : il ne peut plus être modifié.</Alerte>}
 
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -348,8 +349,16 @@ function Releve({ releve, version, recharger }: { releve: ReleveBancaire; versio
           <Indicateur
             libelle="Écart inexpliqué"
             valeur={etat ? formaterXOF(etat.ecart) : "…"}
-            detail={etat && etat.ecart === 0 ? "Le relevé et la comptabilité concordent" : "Opération manquante ou montant erroné"}
-            ton={!etat ? "neutre" : etat.ecart === 0 ? "succes" : "attention"}
+            detail={
+              !etat
+                ? " "
+                : etat.ecart !== 0
+                  ? "Opération manquante ou montant erroné"
+                  : etat.nb_releve_non_pointe + etat.nb_ecritures_non_pointees > 0
+                    ? `Expliqué par ${etat.nb_releve_non_pointe + etat.nb_ecritures_non_pointees} opération(s) à pointer`
+                    : "Le relevé et la comptabilité concordent"
+            }
+            ton={!etat ? "neutre" : etat.ecart !== 0 ? "attention" : etat.nb_releve_non_pointe + etat.nb_ecritures_non_pointees > 0 ? "neutre" : "succes"}
           />
         </div>
 

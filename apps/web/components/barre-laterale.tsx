@@ -37,7 +37,7 @@ const GROUPES: { titre?: string; liens: Lien[] }[] = [
       { href: "/achats", libelle: "Achats", icone: "achats", visible: peutLireAchats },
       { href: "/stock", libelle: "Stock", icone: "stock", visible: peutLireStock },
       { href: "/comptabilite", libelle: "Comptabilité", icone: "comptabilite", visible: peutLireCompta },
-      { href: "#banque", libelle: "Banque", icone: "banque", bientot: true },
+      { href: "/comptabilite/rapprochement", libelle: "Banque", icone: "banque", visible: peutLireCompta },
     ],
   },
   {
@@ -159,7 +159,11 @@ export function BarreLaterale() {
                     </span>
                   );
                 }
-                const actif = pathname === l.href || pathname.startsWith(l.href + "/");
+                // Lien le plus précis : « Banque » (/comptabilite/rapprochement) l'emporte sur « Comptabilité »
+                const correspond = (h: string) => pathname === h || pathname.startsWith(h + "/");
+                const actif =
+                  correspond(l.href) &&
+                  !GROUPES.some((x) => x.liens.some((m) => m.href.length > l.href.length && correspond(m.href)));
                 return (
                   <Link
                     key={l.href}
