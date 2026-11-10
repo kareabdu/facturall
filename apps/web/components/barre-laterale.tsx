@@ -1,6 +1,6 @@
 "use client";
 
-import { LIBELLES_ROLES, peutLireCompta, type Role } from "@facturall/core";
+import { LIBELLES_ROLES, peutLireAchats, peutLireCompta, type Role } from "@facturall/core";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -21,7 +21,7 @@ interface Lien {
 const LIENS: Lien[] = [
   { href: "/tableau-de-bord", libelle: "Tableau de bord" },
   { href: "/ventes", libelle: "Ventes" },
-  { href: "#achats", libelle: "Achats", bientot: true },
+  { href: "/achats", libelle: "Achats", visible: peutLireAchats },
   { href: "#stock", libelle: "Stock", bientot: true },
   { href: "/comptabilite", libelle: "Comptabilité", visible: peutLireCompta },
   { href: "#banque", libelle: "Banque", bientot: true },

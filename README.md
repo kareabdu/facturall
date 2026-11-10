@@ -135,6 +135,27 @@ Menu **Ventes** : factures et devis, clients, articles et TVA.
 Droits : vendeurs = factures et règlements sur leurs boutiques ; catalogue, TVA et avoirs = propriétaire, admin,
 comptable, gestionnaire.
 
+## Achats
+
+Menu **Achats** : factures fournisseurs et fournisseurs.
+
+- **Fournisseurs** : code automatique `FR0001`… ; situation par fournisseur (reste à payer, échu).
+- **Facture fournisseur** : saisie en brouillon, puis validée avec un numéro interne `FF-2026-00001`.
+  Le **numéro de la facture du fournisseur** est obligatoire, et une même facture ne peut pas être saisie deux fois.
+- **Compte par ligne** : 601 (marchandises) ou 6057 (services) par défaut, modifiable ligne par ligne
+  (622 loyer, 6052 électricité, 61x transport, classe 2 pour un équipement…).
+- **Paiements** partiels ou totaux, au comptant à la validation ou plus tard.
+- **Avoir fournisseur** `AF-2026-00001` : annule une facture non encore payée.
+
+| Opération | Écriture |
+|---|---|
+| Facture validée (journal AC) | 60x / 2x (D, HT) / 4452 TVA déductible (D) / 401 fournisseur (C, TTC) |
+| Paiement | 401 fournisseur (D) / 521, 571 ou 552 (C) |
+| Avoir | écriture inverse de la facture |
+
+Droits : propriétaire, admin, comptable et gestionnaire (sur leurs boutiques) ; lecteur en consultation.
+Les vendeurs n'ont pas accès aux achats (prix d'achat).
+
 ## Conventions
 
 - Montants en **entiers XOF** (pas de centimes) : `formaterXOF`, `lireMontantXOF`, `arrondirXOF` dans `@facturall/core`.

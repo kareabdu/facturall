@@ -6,5 +6,6 @@ export * from "./validation";
 export * from "./entreprises";
 export * from "./comptabilite";
 export * from "./ventes";
+export * from "./achats";
 export * from "./lettres";
 export type { Database } from "./database.types";
