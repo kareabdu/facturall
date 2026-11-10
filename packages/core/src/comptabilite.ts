@@ -232,6 +232,7 @@ export async function chargerExercices(sb: SupabaseClient, entrepriseId: string)
 export interface FiltreEcritures {
   exerciceId?: string;
   journalId?: string;
+  journalIds?: string[];
   statut?: "brouillon" | "validee";
   limite?: number;
 }
@@ -250,6 +251,7 @@ export async function chargerEcritures(
     .limit(filtre.limite ?? 100);
   if (filtre.exerciceId) q = q.eq("exercice_id", filtre.exerciceId);
   if (filtre.journalId) q = q.eq("journal_id", filtre.journalId);
+  if (filtre.journalIds) q = q.in("journal_id", filtre.journalIds);
   if (filtre.statut) q = q.eq("statut", filtre.statut);
   const { data, error } = await q;
   echec(error);
@@ -439,4 +441,65 @@ export function balanceEnCSV(lignes: LigneBalance[]): string {
     [l.numero, echapper(l.libelle), l.total_debit, l.total_credit, l.solde_debiteur, l.solde_crediteur].join(";"),
   );
   return [entete.join(";"), ...corps].join("\r\n");
+}
+
+// ---------------------------------------------------------------------------
+// Trésorerie : soldes et mouvements des journaux caisse / banque / Mobile Money
+// ---------------------------------------------------------------------------
+
+export interface SoldeTresorerie {
+  journal: Journal;
+  /** Solde du compte de trésorerie (débit − crédit), à-nouveaux compris. */
+  solde: number;
+}
+
+export interface MouvementTresorerie {
+  ecriture: Ecriture;
+  journal: Journal;
+  /** Positif = entrée d'argent, négatif = sortie. */
+  montant: number;
+}
+
+/** Exercice ouvert contenant la date, sinon le plus récent. */
+export function exerciceCourant(exercices: Exercice[], date = aujourdhui()): Exercice | undefined {
+  return (
+    exercices.find((e) => e.statut === "ouvert" && e.date_debut <= date && date <= e.date_fin) ??
+    [...exercices].sort((a, b) => b.date_debut.localeCompare(a.date_debut))[0]
+  );
+}
+
+/**
+ * Soldes des comptes de trésorerie sur l'exercice courant et derniers mouvements,
+ * toutes origines confondues (saisie simple, règlements clients, paiements fournisseurs…).
+ */
+export async function chargerTresorerie(
+  sb: SupabaseClient,
+  entrepriseId: string,
+  options: { limite?: number } = {},
+): Promise<{ soldes: SoldeTresorerie[]; mouvements: MouvementTresorerie[]; journaux: Journal[] }> {
+  const [journaux, exercices] = await Promise.all([chargerJournaux(sb, entrepriseId), chargerExercices(sb, entrepriseId)]);
+  const tresoreries = journaux.filter((j) => j.actif && TYPES_TRESORERIE.includes(j.type) && j.compte_tresorerie_id);
+  if (tresoreries.length === 0) return { soldes: [], mouvements: [], journaux };
+  const exercice = exerciceCourant(exercices);
+  const [balance, ecritures] = await Promise.all([
+    exercice ? chargerBalance(sb, entrepriseId, exercice.id) : Promise.resolve([] as LigneBalance[]),
+    chargerEcritures(sb, entrepriseId, {
+      journalIds: tresoreries.map((j) => j.id),
+      statut: "validee",
+      limite: options.limite ?? 15,
+    }),
+  ]);
+  const soldes = tresoreries.map((journal) => {
+    const l = balance.find((b) => b.compte_id === journal.compte_tresorerie_id);
+    return { journal, solde: l ? l.total_debit - l.total_credit : 0 };
+  });
+  const mouvements = ecritures.flatMap((ecriture) => {
+    const journal = tresoreries.find((j) => j.id === ecriture.journal_id);
+    if (!journal) return [];
+    const montant = (ecriture.ecriture_lignes ?? [])
+      .filter((l) => l.compte_id === journal.compte_tresorerie_id)
+      .reduce((s, l) => s + l.debit - l.credit, 0);
+    return [{ ecriture, journal, montant }];
+  });
+  return { soldes, mouvements, journaux };
 }

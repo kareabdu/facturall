@@ -2,8 +2,7 @@ import {
   aujourdhui,
   categoriesOperation,
   chargerComptes,
-  chargerEcritures,
-  chargerJournaux,
+  chargerTresorerie,
   enregistrerOperationSimple,
   formaterDate,
   formaterXOF,
@@ -11,8 +10,9 @@ import {
   peutSaisirCompta,
   TYPES_TRESORERIE,
   type Compte,
-  type Ecriture,
   type Journal,
+  type MouvementTresorerie,
+  type SoldeTresorerie,
 } from '@facturall/core';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
@@ -26,6 +26,13 @@ import { supabase } from '@/lib/supabase';
 
 type Sens = 'recette' | 'depense';
 
+const ORIGINES: Record<string, string> = {
+  simple: 'Saisie caisse',
+  reglement: 'Règlement client',
+  paiement_fournisseur: 'Paiement fournisseur',
+  manuelle: 'Écriture',
+};
+
 /** Saisie simplifiée : une recette ou une dépense en quelques secondes. */
 export default function Caisse() {
   const theme = useTheme();
@@ -34,7 +41,8 @@ export default function Caisse() {
 
   const [comptes, setComptes] = useState<Compte[]>([]);
   const [journaux, setJournaux] = useState<Journal[]>([]);
-  const [recentes, setRecentes] = useState<Ecriture[]>([]);
+  const [soldes, setSoldes] = useState<SoldeTresorerie[]>([]);
+  const [mouvements, setMouvements] = useState<MouvementTresorerie[]>([]);
   const [sens, setSens] = useState<Sens>('depense');
   const [montantTexte, setMontantTexte] = useState('');
   const [journalId, setJournalId] = useState('');
@@ -48,14 +56,12 @@ export default function Caisse() {
   const charger = useCallback(async () => {
     if (!entrepriseId) return;
     try {
-      const [c, j, e] = await Promise.all([
-        chargerComptes(supabase, entrepriseId),
-        chargerJournaux(supabase, entrepriseId),
-        chargerEcritures(supabase, entrepriseId, { limite: 30 }),
-      ]);
+      const [c, t] = await Promise.all([chargerComptes(supabase, entrepriseId), chargerTresorerie(supabase, entrepriseId)]);
+      const j = t.journaux;
       setComptes(c);
       setJournaux(j);
-      setRecentes(e.filter((x) => x.origine === 'simple').slice(0, 8));
+      setSoldes(t.soldes);
+      setMouvements(t.mouvements);
       setJournalId((actuel) => actuel || (j.find((x) => x.type === 'caisse')?.id ?? ''));
     } catch (err) {
       setErreur((err as Error).message);
@@ -144,6 +150,28 @@ export default function Caisse() {
         ))}
       </View>
 
+      {/* Soldes de trésorerie (exercice courant, à-nouveaux compris) */}
+      {soldes.length > 0 && (
+        <View style={[styles.soldes, { backgroundColor: theme.panneau }]}>
+          <ThemedText type="small" style={{ color: theme.panneauTextSecondary }}>
+            Trésorerie disponible
+          </ThemedText>
+          <ThemedText style={styles.grandSolde}>{formaterXOF(soldes.reduce((t, s) => t + s.solde, 0))}</ThemedText>
+          <View style={styles.lignesSoldes}>
+            {soldes.map((s) => (
+              <View key={s.journal.id} style={styles.ligneSolde}>
+                <ThemedText type="small" style={{ color: theme.panneauTextSecondary, flex: 1 }} numberOfLines={1}>
+                  {s.journal.libelle}
+                </ThemedText>
+                <ThemedText type="smallBold" style={{ color: s.solde < 0 ? '#FF8787' : theme.panneauText, fontVariant: ['tabular-nums'] }}>
+                  {formaterXOF(s.solde)}
+                </ThemedText>
+              </View>
+            ))}
+          </View>
+        </View>
+      )}
+
       {erreur && <Alerte>{erreur}</Alerte>}
       {message && <Alerte type="succes">{message}</Alerte>}
 
@@ -208,25 +236,26 @@ export default function Caisse() {
       <Bouton titre="Enregistrer" onPress={enregistrer} chargement={envoi} />
 
       <Carte titre="Dernières opérations">
-        {recentes.length === 0 && (
+        {mouvements.length === 0 && (
           <ThemedText type="small" themeColor="textSecondary">
             Aucune opération pour l’instant.
           </ThemedText>
         )}
-        {recentes.map((e) => {
-          const tresorerie = journaux.find((j) => j.id === e.journal_id)?.compte_tresorerie_id;
-          const entree = e.ecriture_lignes?.some((l) => l.compte_id === tresorerie && l.debit > 0);
+        {mouvements.map(({ ecriture: e, journal, montant }) => {
+          const entree = montant >= 0;
           return (
             <View key={e.id} style={styles.ligne}>
               <View style={{ flex: 1 }}>
-                <ThemedText type="small">{e.libelle}</ThemedText>
+                <ThemedText type="small" numberOfLines={2}>
+                  {e.libelle}
+                </ThemedText>
                 <ThemedText type="small" themeColor="textSecondary">
-                  {formaterDate(e.date_ecriture)} · {e.numero}
+                  {formaterDate(e.date_ecriture)} · {journal.libelle} · {ORIGINES[e.origine] ?? e.numero}
                 </ThemedText>
               </View>
-              <ThemedText type="smallBold" style={{ color: entree ? theme.primary : theme.text }}>
+              <ThemedText type="smallBold" style={{ color: entree ? theme.primary : theme.text, fontVariant: ['tabular-nums'] }}>
                 {entree ? '+' : '−'}
-                {formaterXOF(e.total)}
+                {formaterXOF(Math.abs(montant))}
               </ThemedText>
             </View>
           );
@@ -255,4 +284,8 @@ const styles = StyleSheet.create({
   choisie: { flexDirection: 'row', alignItems: 'center', borderRadius: Spacing.two + Spacing.one, padding: Spacing.three, gap: Spacing.two },
   ligne: { flexDirection: 'row', alignItems: 'center', paddingVertical: Spacing.two, gap: Spacing.two },
   numero: { width: 48, fontVariant: ['tabular-nums'] },
+  soldes: { borderRadius: Spacing.four, padding: Spacing.four, gap: Spacing.one },
+  grandSolde: { color: '#FFFFFF', fontSize: 28, lineHeight: 36, fontWeight: 700, fontVariant: ['tabular-nums'] },
+  lignesSoldes: { gap: Spacing.one, marginTop: Spacing.one },
+  ligneSolde: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
 });
