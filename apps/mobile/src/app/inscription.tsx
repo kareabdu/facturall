@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { Alerte, Bouton, Champ, Ecran, Lien } from '@/components/formulaire';
+import { Alerte, Bouton, Champ, Ecran, Lien, Logo } from '@/components/formulaire';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { supabase } from '@/lib/supabase';
@@ -49,7 +49,10 @@ export default function Inscription() {
   return (
     <Ecran>
       <View style={styles.entete}>
-        <ThemedText type="subtitle">Créer un compte</ThemedText>
+        <Logo taille={36} />
+        <ThemedText type="subtitle" style={{ marginTop: Spacing.three }}>
+          Créer un compte
+        </ThemedText>
         <ThemedText themeColor="textSecondary">Vous créerez ensuite votre entreprise.</ThemedText>
       </View>
 

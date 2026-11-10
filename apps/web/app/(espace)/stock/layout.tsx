@@ -1,10 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
-import { Alerte, Chargement } from "@/components/ui";
+import { Alerte, Chargement, Onglets } from "@/components/ui";
 import { StockProvider, useStock } from "@/lib/stock";
 
 const ONGLETS = [
@@ -46,22 +45,10 @@ function Cadre({ children }: { children: ReactNode }) {
               Quantités par boutique, valorisation au coût moyen pondéré (CMUP) · montants en FCFA
             </p>
           </div>
-          <nav className="-mx-1 mb-6 flex gap-1 overflow-x-auto border-b border-border px-1">
-            {ONGLETS.map((o) => {
-              const actif = o.href === "/stock" ? pathname === o.href : pathname.startsWith(o.href);
-              return (
-                <Link
-                  key={o.href}
-                  href={o.href}
-                  className={`-mb-px whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
-                    actif ? "border-primary text-primary" : "border-transparent text-muted hover:text-foreground"
-                  }`}
-                >
-                  {o.libelle}
-                </Link>
-              );
-            })}
-          </nav>
+          <Onglets
+            onglets={ONGLETS}
+            actif={(href) => (href === "/stock" ? pathname === href : pathname.startsWith(href))}
+          />
         </>
       )}
       {erreur ? <Alerte>{erreur}</Alerte> : chargement ? <Chargement /> : children}

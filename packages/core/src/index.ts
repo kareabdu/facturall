@@ -8,5 +8,7 @@ export * from "./comptabilite";
 export * from "./ventes";
 export * from "./achats";
 export * from "./stock";
+export * from "./design";
+export * from "./resume";
 export * from "./lettres";
 export type { Database } from "./database.types";

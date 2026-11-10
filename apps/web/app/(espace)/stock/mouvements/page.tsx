@@ -108,7 +108,7 @@ function Mouvements() {
         ) : (
           <div className="-m-5 overflow-x-auto">
             <table className="w-full min-w-[56rem] text-sm">
-              <thead className="border-b border-border bg-background text-left text-xs uppercase tracking-wide text-muted">
+              <thead className="border-b border-border bg-surface-retrait text-left text-xs uppercase tracking-wide text-muted">
                 <tr>
                   <th className="px-5 py-2.5 font-medium">Date</th>
                   {!unArticle && <th className="px-2 py-2.5 font-medium">Article</th>}
@@ -123,7 +123,7 @@ function Mouvements() {
               </thead>
               <tbody className="divide-y divide-border">
                 {mouvements.map((m) => (
-                  <tr key={m.id} className="hover:bg-background">
+                  <tr key={m.id} className="hover:bg-surface-retrait">
                     <td className="whitespace-nowrap px-5 py-3">{formaterDate(m.date_mouvement)}</td>
                     {!unArticle && <td className="px-2 py-3 font-medium">{m.articles?.designation}</td>}
                     <td className="px-2 py-3">{boutiqueParId.get(m.boutique_id)?.nom}</td>

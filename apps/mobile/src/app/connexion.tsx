@@ -3,9 +3,9 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { Alerte, Bouton, Champ, Ecran, Lien } from '@/components/formulaire';
+import { Alerte, Bouton, Champ, Ecran, Lien, Logo } from '@/components/formulaire';
 import { ThemedText } from '@/components/themed-text';
-import { Couleurs, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
 import { supabase } from '@/lib/supabase';
 
 export default function Connexion() {
@@ -28,10 +28,11 @@ export default function Connexion() {
   return (
     <Ecran>
       <View style={styles.entete}>
-        <ThemedText type="subtitle">
-          Factur<ThemedText type="subtitle" style={{ color: Couleurs.primaire }}>All</ThemedText>
+        <Logo taille={40} />
+        <ThemedText type="subtitle" style={styles.titre}>
+          Bon retour
         </ThemedText>
-        <ThemedText themeColor="textSecondary">Gestion commerciale et comptabilité, en FCFA.</ThemedText>
+        <ThemedText themeColor="textSecondary">Gestion commerciale et comptabilité SYSCOHADA, en FCFA.</ThemedText>
       </View>
 
       {erreur && <Alerte>{erreur}</Alerte>}
@@ -64,6 +65,7 @@ export default function Connexion() {
 }
 
 const styles = StyleSheet.create({
-  entete: { gap: Spacing.two, marginTop: Spacing.six, marginBottom: Spacing.four },
+  entete: { gap: Spacing.two, marginTop: Spacing.five, marginBottom: Spacing.three },
+  titre: { marginTop: Spacing.four },
   note: { textAlign: 'center' },
 });

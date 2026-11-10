@@ -1,29 +1,104 @@
 @import "tailwindcss";
 
+/*
+ * Direction artistique « fintech moderne ».
+ * Valeurs identiques à packages/core/src/design.ts (PALETTES) : modifier les deux ensemble.
+ * Thème : <html data-theme="clair|sombre"> imposé par l'utilisateur, sinon réglage de l'appareil.
+ */
+
 :root {
-  --background: #f6f7f5;
+  color-scheme: light;
+  --background: #f3f6f5;
   --surface: #ffffff;
-  --foreground: #16201b;
-  --muted: #5d6a63;
-  --border: #e2e6e3;
-  --primary: #0f6b4f;
-  --primary-hover: #0b5640;
-  --primary-soft: #e6f2ed;
-  --danger: #b42318;
-  --danger-soft: #fef3f2;
+  --surface-retrait: #f7f9f8;
+  --foreground: #0e1a16;
+  --muted: #5b6b65;
+  --border: #e2e8e5;
+  --primary: #087f5b;
+  --primary-hover: #066a4c;
+  --on-primary: #ffffff;
+  --primary-soft: #e3f6ee;
+  --accent: #12b886;
+  --danger: #c92a2a;
+  --danger-soft: #fff0f0;
+  --warning: #a75a00;
+  --warning-soft: #fff4e5;
+  --panneau: #0e1a16;
+  --panneau-texte: #e6eeeb;
+  --panneau-discret: #8da39a;
+  --panneau-bordure: #1f2e28;
+  --ombre-carte: 0 1px 2px rgb(14 26 22 / 0.04), 0 6px 24px -8px rgb(14 26 22 / 0.08);
+  --ombre-menu: 0 12px 32px -8px rgb(14 26 22 / 0.18);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="clair"]) {
+    color-scheme: dark;
+    --background: #0a1310;
+    --surface: #111d19;
+    --surface-retrait: #0d1714;
+    --foreground: #e8f0ec;
+    --muted: #93a69e;
+    --border: #22332d;
+    --primary: #20c997;
+    --primary-hover: #38d9a9;
+    --on-primary: #04130d;
+    --primary-soft: #123a2e;
+    --danger: #ff8787;
+    --danger-soft: #3a1d1f;
+    --warning: #ffc078;
+    --warning-soft: #3a2a12;
+    --panneau: #070e0b;
+    --panneau-bordure: #1a2823;
+    --ombre-carte: 0 1px 0 rgb(255 255 255 / 0.03) inset;
+    --ombre-menu: 0 12px 32px -8px rgb(0 0 0 / 0.6);
+  }
+}
+
+:root[data-theme="sombre"] {
+  color-scheme: dark;
+  --background: #0a1310;
+  --surface: #111d19;
+  --surface-retrait: #0d1714;
+  --foreground: #e8f0ec;
+  --muted: #93a69e;
+  --border: #22332d;
+  --primary: #20c997;
+  --primary-hover: #38d9a9;
+  --on-primary: #04130d;
+  --primary-soft: #123a2e;
+  --danger: #ff8787;
+  --danger-soft: #3a1d1f;
+  --warning: #ffc078;
+  --warning-soft: #3a2a12;
+  --panneau: #070e0b;
+  --panneau-bordure: #1a2823;
+  --ombre-carte: 0 1px 0 rgb(255 255 255 / 0.03) inset;
+  --ombre-menu: 0 12px 32px -8px rgb(0 0 0 / 0.6);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
+  --color-surface-retrait: var(--surface-retrait);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-border: var(--border);
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
+  --color-on-primary: var(--on-primary);
   --color-primary-soft: var(--primary-soft);
+  --color-accent: var(--accent);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-panneau: var(--panneau);
+  --color-panneau-texte: var(--panneau-texte);
+  --color-panneau-discret: var(--panneau-discret);
+  --color-panneau-bordure: var(--panneau-bordure);
+  --shadow-carte: var(--ombre-carte);
+  --shadow-menu: var(--ombre-menu);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -39,11 +114,32 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* Impression des factures : A4, sans fond ni éléments d'interface */
+/* Grands chiffres des indicateurs */
+.chiffre {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Impression des factures : A4, toujours en clair, sans fond ni éléments d'interface */
 @media print {
   @page {
     size: A4;
     margin: 12mm;
+  }
+  /* Spécificité (0,3,0) : l'emporte sur le thème sombre automatique ou imposé */
+  :root:root:root {
+    color-scheme: light;
+    --background: #ffffff;
+    --surface: #ffffff;
+    --surface-retrait: #f7f9f8;
+    --foreground: #0e1a16;
+    --muted: #5b6b65;
+    --border: #e2e8e5;
+    --primary: #087f5b;
+    --on-primary: #ffffff;
+    --primary-soft: #e3f6ee;
+    --danger: #c92a2a;
+    --warning: #a75a00;
   }
   body {
     background: #fff;

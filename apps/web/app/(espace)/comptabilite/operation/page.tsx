@@ -105,7 +105,7 @@ export default function PageOperation() {
                   setCompteId("");
                 }}
                 className={`h-10 rounded-lg text-sm font-medium transition-colors ${
-                  sens === s ? (s === "recette" ? "bg-primary text-white" : "bg-foreground text-white") : "text-muted"
+                  sens === s ? (s === "recette" ? "bg-primary text-on-primary" : "bg-foreground text-background") : "text-muted"
                 }`}
               >
                 {s === "recette" ? "Recette (entrée d'argent)" : "Dépense (sortie d'argent)"}

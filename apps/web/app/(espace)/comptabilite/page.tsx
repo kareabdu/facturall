@@ -128,7 +128,7 @@ function Ecritures() {
         ) : (
           <div className="-mx-5 -my-5 overflow-x-auto">
             <table className="w-full min-w-[40rem] text-sm">
-              <thead className="border-b border-border bg-background text-left text-xs uppercase tracking-wide text-muted">
+              <thead className="border-b border-border bg-surface-retrait text-left text-xs uppercase tracking-wide text-muted">
                 <tr>
                   <th className="px-5 py-2.5 font-medium">Date</th>
                   <th className="px-2 py-2.5 font-medium">N°</th>
@@ -141,7 +141,7 @@ function Ecritures() {
                 {ecritures.map((e) => (
                   <Fragment key={e.id}>
                     <tr
-                      className="cursor-pointer hover:bg-background"
+                      className="cursor-pointer hover:bg-surface-retrait"
                       onClick={() => setOuverte((o) => (o === e.id ? null : e.id))}
                       aria-expanded={ouverte === e.id}
                     >

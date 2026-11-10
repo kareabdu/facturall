@@ -91,7 +91,7 @@ export default function PageTransferts() {
         ) : (
           <div className="-m-5 overflow-x-auto">
             <table className="w-full min-w-[44rem] text-sm">
-              <thead className="border-b border-border bg-background text-left text-xs uppercase tracking-wide text-muted">
+              <thead className="border-b border-border bg-surface-retrait text-left text-xs uppercase tracking-wide text-muted">
                 <tr>
                   <th className="px-5 py-2.5 font-medium">N°</th>
                   <th className="px-2 py-2.5 font-medium">Date</th>
@@ -137,7 +137,7 @@ function FragmentTransfert({
   const lignes = t.lignes_transferts_stock ?? [];
   return (
     <>
-      <tr className="cursor-pointer hover:bg-background" onClick={onBasculer}>
+      <tr className="cursor-pointer hover:bg-surface-retrait" onClick={onBasculer}>
         <td className="px-5 py-3 font-mono text-xs font-medium text-primary">{t.numero}</td>
         <td className="whitespace-nowrap px-2 py-3">{formaterDate(t.date_transfert)}</td>
         <td className="px-2 py-3">{nomBoutique(t.boutique_source_id)}</td>
@@ -271,7 +271,7 @@ function FormulaireTransfert({
                     placeholder="Quantité"
                     value={l.quantite}
                     onChange={(e) => maj(l.cle, { quantite: e.target.value })}
-                    className={`montant h-10 w-full rounded-lg border bg-surface px-3 text-right text-sm outline-none focus:border-primary ${depasse ? "border-danger" : "border-border"}`}
+                    className={`montant h-10 w-full rounded-xl border bg-surface px-3 text-right text-sm outline-none focus:border-primary ${depasse ? "border-danger" : "border-border"}`}
                   />
                   {depasse && <p className="mt-1 text-xs text-danger">Disponible : {formaterQuantite(dispoLigne ?? 0)}</p>}
                 </div>

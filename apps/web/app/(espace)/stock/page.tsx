@@ -17,7 +17,7 @@ import { useEffect, useMemo, useState, type FormEvent } from "react";
 
 import { ChampMontant, Montant } from "@/components/compta";
 import { BadgeNiveau, ChoixArticleStock } from "@/components/stock";
-import { Alerte, Bouton, Carte, Champ, Chargement, Liste } from "@/components/ui";
+import { Alerte, Bouton, Carte, Champ, Chargement, Indicateur, Liste } from "@/components/ui";
 import { useEspace } from "@/lib/espace";
 import { useStock } from "@/lib/stock";
 import { supabase } from "@/lib/supabase";
@@ -160,7 +160,7 @@ export default function PageStock() {
           placeholder="Désignation ou référence…"
           value={recherche}
           onChange={(e) => setRecherche(e.target.value)}
-          className="h-10 min-w-48 flex-1 rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-primary sm:max-w-72"
+          className="h-10 min-w-48 flex-1 rounded-xl border border-border bg-surface px-3 text-sm outline-none focus:border-primary sm:max-w-72"
         />
         <Liste aria-label="Niveau" className="w-auto" value={niveau} onChange={(e) => setNiveau(e.target.value as NiveauStock | "")}>
           <option value="">Tous les niveaux</option>
@@ -177,13 +177,15 @@ export default function PageStock() {
           {[
             ["Valeur du stock", formaterXOF(indicateurs.valeur), ""],
             ["Articles suivis", String(indicateurs.articles), ""],
-            ["Stock bas", String(indicateurs.bas), indicateurs.bas > 0 ? "text-amber-700" : ""],
+            ["Stock bas", String(indicateurs.bas), indicateurs.bas > 0 ? "text-warning" : ""],
             ["En rupture", String(indicateurs.rupture), indicateurs.rupture > 0 ? "text-danger" : ""],
           ].map(([libelle, valeur, classe]) => (
-            <div key={libelle} className="rounded-xl border border-border bg-surface p-4">
-              <p className="text-sm text-muted">{libelle}</p>
-              <p className={`montant mt-1 text-lg font-semibold ${classe}`}>{valeur}</p>
-            </div>
+            <Indicateur
+              key={libelle}
+              libelle={libelle}
+              valeur={valeur}
+              ton={classe.includes("danger") ? "danger" : classe.includes("warning") ? "attention" : "neutre"}
+            />
           ))}
         </div>
       )}
@@ -219,7 +221,7 @@ export default function PageStock() {
         ) : (
           <div className="-m-5 overflow-x-auto">
             <table className="w-full min-w-[44rem] text-sm">
-              <thead className="border-b border-border bg-background text-left text-xs uppercase tracking-wide text-muted">
+              <thead className="border-b border-border bg-surface-retrait text-left text-xs uppercase tracking-wide text-muted">
                 <tr>
                   <th className="px-5 py-2.5 font-medium">Article</th>
                   <th className="px-2 py-2.5 font-medium">Niveau</th>
@@ -230,7 +232,7 @@ export default function PageStock() {
               </thead>
               <tbody className="divide-y divide-border">
                 {filtrees.map((l) => (
-                  <tr key={l.articleId} className="hover:bg-background">
+                  <tr key={l.articleId} className="hover:bg-surface-retrait">
                     <td className="px-5 py-3">
                       <Link
                         href={`/stock/mouvements?article=${l.articleId}${toutes ? "" : `&boutique=${boutiqueId}`}`}

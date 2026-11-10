@@ -1,46 +1,52 @@
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://unistyl.es/), etc.
+ * Thème mobile FacturAll : la palette vient de @facturall/core (identique au web).
  */
 
 import '@/global.css';
 
+import { PALETTES, RAYONS, type Palette } from '@facturall/core';
 import { Platform } from 'react-native';
 
+function couleurs(p: Palette) {
+  return {
+    text: p.texte,
+    textSecondary: p.texteDiscret,
+    background: p.fond,
+    /** Cartes, champs */
+    backgroundElement: p.surface,
+    /** Zones en retrait, éléments sélectionnés discrets */
+    backgroundSelected: p.surfaceRetrait,
+    border: p.bordure,
+    primary: p.primaire,
+    onPrimary: p.surPrimaire,
+    primarySoft: p.primaireDoux,
+    accent: p.accent,
+    danger: p.danger,
+    dangerSoft: p.dangerDoux,
+    warning: p.alerte,
+    warningSoft: p.alerteDoux,
+    panneau: p.panneau,
+    panneauText: p.panneauTexte,
+    panneauTextSecondary: p.panneauTexteDiscret,
+    panneauBorder: p.panneauBordure,
+  };
+}
+
 export const Colors = {
-  light: {
-    text: '#000000',
-    background: '#ffffff',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C',
-  },
-  dark: {
-    text: '#ffffff',
-    background: '#000000',
-    backgroundElement: '#212225',
-    backgroundSelected: '#2E3135',
-    textSecondary: '#B0B4BA',
-  },
+  light: couleurs(PALETTES.clair),
+  dark: couleurs(PALETTES.sombre),
 } as const;
 
-/** Couleurs de la marque FacturAll (identiques au web). */
-export const Couleurs = {
-  primaire: '#0F6B4F',
-  danger: '#B42318',
-} as const;
+export type Couleurs = ReturnType<typeof couleurs>;
+export type ThemeColor = keyof Couleurs;
 
-export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
+export const Rayons = RAYONS;
 
 export const Fonts = Platform.select({
   ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
     sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
     serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
     rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
     mono: 'ui-monospace',
   },
   default: {

@@ -6,7 +6,7 @@ import { useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
 /** Composants de saisie comptable. */
 
 const styleChamp =
-  "h-10 w-full rounded-lg border border-border bg-surface px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:bg-background";
+  "h-10 w-full rounded-xl border border-border bg-surface px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:bg-background";
 
 /** Montant en FCFA : accepte « 1 250 000 », s'affiche formaté hors saisie. */
 export function ChampMontant({
@@ -149,7 +149,7 @@ export function ChoixCompte({
         <ul
           id={id}
           role="listbox"
-          className="absolute z-20 mt-1 max-h-72 w-full min-w-72 overflow-auto rounded-lg border border-border bg-surface py-1 text-sm shadow-lg"
+          className="absolute z-20 mt-1 max-h-72 w-full min-w-72 overflow-auto rounded-xl border border-border bg-surface py-1 text-sm shadow-menu"
         >
           {resultats.length === 0 && <li className="px-3 py-2 text-muted">Aucun compte</li>}
           {resultats.map((c, i) => (

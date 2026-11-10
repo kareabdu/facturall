@@ -15,7 +15,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { BadgeEtatAchat } from "@/components/achats";
 import { Montant } from "@/components/compta";
-import { Alerte, Carte, Chargement, LienBouton } from "@/components/ui";
+import { Alerte, Carte, Chargement, Indicateur, LienBouton } from "@/components/ui";
 import { useAchats } from "@/lib/achats";
 import { useEspace } from "@/lib/espace";
 import { supabase } from "@/lib/supabase";
@@ -90,7 +90,7 @@ export default function PageAchats() {
           placeholder="N°, n° fournisseur ou fournisseur…"
           value={recherche}
           onChange={(e) => setRecherche(e.target.value)}
-          className="h-10 min-w-48 flex-1 rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-primary sm:max-w-72"
+          className="h-10 min-w-48 flex-1 rounded-xl border border-border bg-surface px-3 text-sm outline-none focus:border-primary sm:max-w-72"
         />
         <label className="flex items-center gap-2 text-sm text-muted">
           <input type="checkbox" className="accent-primary" checked={!toutesBoutiques} onChange={(e) => setToutesBoutiques(!e.target.checked)} />
@@ -109,10 +109,12 @@ export default function PageAchats() {
             ["Dont échu", formaterXOF(indicateurs.echu), indicateurs.echu > 0 ? "text-danger" : ""],
             ["Brouillons", String(indicateurs.brouillons), ""],
           ].map(([libelle, valeur, classe]) => (
-            <div key={libelle} className="rounded-xl border border-border bg-surface p-4">
-              <p className="text-sm text-muted">{libelle}</p>
-              <p className={`montant mt-1 text-lg font-semibold ${classe}`}>{valeur}</p>
-            </div>
+            <Indicateur
+              key={libelle}
+              libelle={libelle}
+              valeur={valeur}
+              ton={classe.includes("danger") ? "danger" : classe.includes("warning") ? "attention" : "neutre"}
+            />
           ))}
         </div>
       )}
@@ -132,7 +134,7 @@ export default function PageAchats() {
         ) : (
           <div className="-m-5 overflow-x-auto">
             <table className="w-full min-w-[48rem] text-sm">
-              <thead className="border-b border-border bg-background text-left text-xs uppercase tracking-wide text-muted">
+              <thead className="border-b border-border bg-surface-retrait text-left text-xs uppercase tracking-wide text-muted">
                 <tr>
                   <th className="px-5 py-2.5 font-medium">N° interne</th>
                   <th className="px-2 py-2.5 font-medium">N° fournisseur</th>
@@ -145,7 +147,7 @@ export default function PageAchats() {
               </thead>
               <tbody className="divide-y divide-border">
                 {filtres.map((d) => (
-                  <tr key={d.id} className="hover:bg-background">
+                  <tr key={d.id} className="hover:bg-surface-retrait">
                     <td className="px-5 py-3 font-mono text-xs">
                       <Link href={`/achats/document?id=${d.id}`} className="font-medium text-primary hover:underline">
                         {d.numero ?? "—"}

@@ -51,14 +51,7 @@ export function BadgeEtat({ document: d }: { document: DocumentVente }) {
   }
   if (d.type === "avoir") return <Badge ton="gris">Avoir</Badge>;
   const etat = etatFacture(d, aujourdhui());
-  if (TONS[etat] === "rouge") {
-    return (
-      <span className="inline-flex rounded-md border border-danger/30 bg-danger-soft px-2 py-0.5 text-xs font-medium text-danger">
-        {LIBELLES_ETATS[etat]}
-      </span>
-    );
-  }
-  return <Badge ton={TONS[etat] as "vert" | "gris" | "neutre"}>{LIBELLES_ETATS[etat]}</Badge>;
+  return <Badge ton={TONS[etat]}>{LIBELLES_ETATS[etat]}</Badge>;
 }
 
 // ---------------------------------------------------------------------------
@@ -125,7 +118,7 @@ export function ChoixClient({
         aria-label="Client"
         aria-expanded={ouvert}
         aria-controls={id}
-        className="h-10 w-full rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+        className="h-10 w-full rounded-xl border border-border bg-surface px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
         placeholder="Nom, code ou téléphone…"
         value={recherche ?? (choisi ? `${choisi.nom} (${choisi.code})` : "")}
         onFocus={(e) => {
@@ -138,7 +131,7 @@ export function ChoixClient({
         }}
       />
       {ouvert && (
-        <ul id={id} role="listbox" className="absolute z-20 mt-1 max-h-72 w-full overflow-auto rounded-lg border border-border bg-surface py-1 text-sm shadow-lg">
+        <ul id={id} role="listbox" className="absolute z-20 mt-1 max-h-72 w-full overflow-auto rounded-xl border border-border bg-surface py-1 text-sm shadow-menu">
           {resultats.map((c) => (
             <li
               key={c.id}

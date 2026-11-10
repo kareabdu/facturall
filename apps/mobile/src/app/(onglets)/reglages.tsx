@@ -1,14 +1,19 @@
-import { LIBELLES_ROLES, nomPays } from '@facturall/core';
+import { LIBELLES_ROLES, LIBELLES_THEMES, nomPays, type PreferenceTheme } from '@facturall/core';
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { Bouton, Carte, Ecran } from '@/components/formulaire';
+import { Bouton, Carte, Ecran, Pastilles } from '@/components/formulaire';
 import { ThemedText } from '@/components/themed-text';
-import { BottomTabInset, Couleurs, Spacing } from '@/constants/theme';
+import { BottomTabInset, Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 import { oublierEspace, useEspace, useSession } from '@/lib/espace';
 import { supabase } from '@/lib/supabase';
+import { useThemeApp } from '@/lib/theme';
+
+const THEMES = (['auto', 'clair', 'sombre'] as const).map((code) => ({ code, libelle: LIBELLES_THEMES[code] }));
 
 function Ligne({ titre, detail, choisi, onPress }: { titre: string; detail?: string; choisi: boolean; onPress: () => void }) {
+  const theme = useTheme();
   return (
     <Pressable
       onPress={onPress}
@@ -24,7 +29,7 @@ function Ligne({ titre, detail, choisi, onPress }: { titre: string; detail?: str
           </ThemedText>
         )}
       </View>
-      {choisi && <ThemedText style={{ color: Couleurs.primaire }}>✓</ThemedText>}
+      {choisi && <ThemedText style={{ color: theme.primary }}>✓</ThemedText>}
     </Pressable>
   );
 }
@@ -32,6 +37,8 @@ function Ligne({ titre, detail, choisi, onPress }: { titre: string; detail?: str
 export default function Reglages() {
   const { session } = useSession();
   const { entreprises, entreprise, boutiques, boutique, choisirEntreprise, choisirBoutique } = useEspace();
+  const { preference, changerPreference } = useThemeApp();
+  const theme = useTheme();
 
   return (
     <Ecran onglets>
@@ -50,7 +57,7 @@ export default function Reglages() {
           />
         ))}
         <Pressable onPress={() => router.push('/ajouter-entreprise')} style={styles.ligne}>
-          <ThemedText type="smallBold" style={{ color: Couleurs.primaire }}>
+          <ThemedText type="smallBold" style={{ color: theme.primary }}>
             + Nouvelle entreprise
           </ThemedText>
         </Pressable>
@@ -73,6 +80,18 @@ export default function Reglages() {
             Aucune boutique ne vous est attribuée dans cette entreprise.
           </ThemedText>
         )}
+      </Carte>
+
+      <Carte>
+        <Pastilles<PreferenceTheme>
+          libelle="Apparence"
+          options={THEMES}
+          valeur={preference}
+          onChange={changerPreference}
+        />
+        <ThemedText type="small" themeColor="textSecondary">
+          Automatique suit le réglage clair ou sombre du téléphone.
+        </ThemedText>
       </Carte>
 
       <Carte titre="Compte">

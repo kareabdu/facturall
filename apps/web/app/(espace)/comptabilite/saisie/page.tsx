@@ -176,7 +176,7 @@ function Saisie() {
                   <td className="py-1 pl-2">
                     <input
                       aria-label={`Libellé ligne ${i + 1}`}
-                      className="h-10 w-full rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                      className="h-10 w-full rounded-xl border border-border bg-surface px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                       value={l.libelle ?? ""}
                       placeholder={libelle}
                       onChange={(e) => maj(i, { libelle: e.target.value })}
@@ -202,7 +202,7 @@ function Saisie() {
                       aria-label={`Supprimer la ligne ${i + 1}`}
                       disabled={lignes.length <= 2}
                       onClick={() => setLignes((ls) => ls.filter((_, j) => j !== i))}
-                      className="grid size-10 place-items-center rounded-lg text-muted hover:bg-background hover:text-danger disabled:opacity-30"
+                      className="grid size-10 place-items-center rounded-lg text-muted hover:bg-surface-retrait hover:text-danger disabled:opacity-30"
                     >
                       ×
                     </button>

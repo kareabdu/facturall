@@ -1,21 +1,49 @@
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider, type Theme } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import type { ReactNode } from 'react';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import { ChargementPlein } from '@/components/formulaire';
 import { Fournisseurs, useEspace, useSession } from '@/lib/espace';
+import { ThemeApp, useThemeApp } from '@/lib/theme';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Fournisseurs>
-        <Navigation />
-      </Fournisseurs>
-      <AnimatedSplashOverlay />
+    <ThemeApp>
+      <ThemeNavigation>
+        <Fournisseurs>
+          <Navigation />
+        </Fournisseurs>
+        <AnimatedSplashOverlay />
+      </ThemeNavigation>
+    </ThemeApp>
+  );
+}
+
+/** Thème de navigation (fonds d'écran, en-têtes) aligné sur la palette FacturAll. */
+function ThemeNavigation({ children }: { children: ReactNode }) {
+  const { schema, couleurs } = useThemeApp();
+  const base = schema === 'sombre' ? DarkTheme : DefaultTheme;
+  const theme: Theme = {
+    ...base,
+    dark: schema === 'sombre',
+    colors: {
+      ...base.colors,
+      primary: couleurs.primary,
+      background: couleurs.background,
+      card: couleurs.backgroundElement,
+      text: couleurs.text,
+      border: couleurs.border,
+      notification: couleurs.danger,
+    },
+  };
+  return (
+    <ThemeProvider value={theme}>
+      <StatusBar style={schema === 'sombre' ? 'light' : 'dark'} />
+      {children}
     </ThemeProvider>
   );
 }

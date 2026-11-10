@@ -63,7 +63,7 @@ export default function PageClients() {
           placeholder="Nom, code ou téléphone…"
           value={recherche}
           onChange={(e) => setRecherche(e.target.value)}
-          className="h-10 min-w-56 flex-1 rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-primary sm:max-w-80"
+          className="h-10 min-w-56 flex-1 rounded-xl border border-border bg-surface px-3 text-sm outline-none focus:border-primary sm:max-w-80"
         />
         <label className="flex items-center gap-2 text-sm text-muted">
           <input type="checkbox" className="accent-primary" checked={inactifs} onChange={(e) => setInactifs(e.target.checked)} />
@@ -75,11 +75,11 @@ export default function PageClients() {
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:max-w-md">
-        <div className="rounded-xl border border-border bg-surface p-4">
+        <div className="rounded-2xl border border-border bg-surface p-4 shadow-carte">
           <p className="text-sm text-muted">Créances clients</p>
           <p className="montant mt-1 text-lg font-semibold"><Montant valeur={totalDu} /> FCFA</p>
         </div>
-        <div className="rounded-xl border border-border bg-surface p-4">
+        <div className="rounded-2xl border border-border bg-surface p-4 shadow-carte">
           <p className="text-sm text-muted">Dont échues</p>
           <p className={`montant mt-1 text-lg font-semibold ${totalEchu ? "text-danger" : ""}`}><Montant valeur={totalEchu} /> FCFA</p>
         </div>
@@ -111,7 +111,7 @@ export default function PageClients() {
       <Carte>
         <div className="-mx-5 -my-5 overflow-x-auto">
           <table className="w-full min-w-[40rem] text-sm">
-            <thead className="border-b border-border bg-background text-left text-xs uppercase tracking-wide text-muted">
+            <thead className="border-b border-border bg-surface-retrait text-left text-xs uppercase tracking-wide text-muted">
               <tr>
                 <th className="px-5 py-2.5 font-medium">Code</th>
                 <th className="px-2 py-2.5 font-medium">Client</th>
@@ -140,11 +140,11 @@ export default function PageClients() {
                     <td className="px-5 py-3 text-right">
                       {peutVendre && c.code !== "CL0000" && (
                         <span className="flex justify-end gap-1">
-                          <button className="rounded px-2 py-1 text-xs text-muted hover:bg-background hover:text-foreground" onClick={() => setEdition(c)}>
+                          <button className="rounded px-2 py-1 text-xs text-muted hover:bg-surface-retrait hover:text-foreground" onClick={() => setEdition(c)}>
                             Modifier
                           </button>
                           <button
-                            className="rounded px-2 py-1 text-xs text-muted hover:bg-background hover:text-foreground"
+                            className="rounded px-2 py-1 text-xs text-muted hover:bg-surface-retrait hover:text-foreground"
                             onClick={async () => {
                               await modifierClient(supabase, c.id, { actif: !c.actif }).catch((e: Error) => setErreur(e.message));
                               await rafraichir();

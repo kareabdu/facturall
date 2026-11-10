@@ -26,14 +26,7 @@ const TONS: Record<EtatAchat, "vert" | "gris" | "neutre" | "rouge"> = {
 export function BadgeEtatAchat({ document: d }: { document: DocumentAchat }) {
   if (d.type === "avoir") return <Badge ton="gris">Avoir</Badge>;
   const etat = etatAchat(d, aujourdhui());
-  if (TONS[etat] === "rouge") {
-    return (
-      <span className="inline-flex rounded-md border border-danger/30 bg-danger-soft px-2 py-0.5 text-xs font-medium text-danger">
-        {LIBELLES_ETATS_ACHAT[etat]}
-      </span>
-    );
-  }
-  return <Badge ton={TONS[etat] as "vert" | "gris" | "neutre"}>{LIBELLES_ETATS_ACHAT[etat]}</Badge>;
+  return <Badge ton={TONS[etat]}>{LIBELLES_ETATS_ACHAT[etat]}</Badge>;
 }
 
 /** Liste des fournisseurs actifs, avec création rapide (nom + téléphone). */

@@ -64,8 +64,8 @@ function Cadre({ children }: { children: ReactNode }) {
   return (
     <div className="flex flex-1 flex-col md:flex-row">
       <BarreLaterale />
-      <main className="flex-1 px-4 py-6 md:px-8 md:py-8 print:p-0">
-        <div className="mx-auto max-w-5xl">{children}</div>
+      <main className="min-w-0 flex-1 px-4 py-6 md:px-8 md:py-8 lg:px-10 print:p-0">
+        <div className="mx-auto max-w-6xl">{children}</div>
       </main>
     </div>
   );

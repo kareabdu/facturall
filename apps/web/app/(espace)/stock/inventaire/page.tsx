@@ -20,7 +20,7 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 
 import { Montant } from "@/components/compta";
 import { QuantiteSignee } from "@/components/stock";
-import { Alerte, Badge, Bouton, Carte, Champ, Chargement, Liste } from "@/components/ui";
+import { Alerte, Badge, Bouton, Carte, Champ, Chargement, Indicateur, Liste } from "@/components/ui";
 import { useEspace } from "@/lib/espace";
 import { useStock } from "@/lib/stock";
 import { supabase } from "@/lib/supabase";
@@ -217,7 +217,7 @@ function Editeur({ inventaire }: { inventaire: Inventaire | null }) {
             placeholder="Rechercher un article…"
             value={recherche}
             onChange={(e) => setRecherche(e.target.value)}
-            className="h-10 min-w-48 flex-1 rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-primary sm:max-w-72"
+            className="h-10 min-w-48 flex-1 rounded-xl border border-border bg-surface px-3 text-sm outline-none focus:border-primary sm:max-w-72"
           />
           <Bouton
             variante="secondaire"
@@ -246,7 +246,7 @@ function Editeur({ inventaire }: { inventaire: Inventaire | null }) {
           ) : (
             <div className="-m-5 overflow-x-auto">
               <table className="w-full min-w-[40rem] text-sm">
-                <thead className="border-b border-border bg-background text-left text-xs uppercase tracking-wide text-muted">
+                <thead className="border-b border-border bg-surface-retrait text-left text-xs uppercase tracking-wide text-muted">
                   <tr>
                     <th className="px-5 py-2.5 font-medium">Article</th>
                     <th className="px-2 py-2.5 text-right font-medium">Théorique</th>
@@ -278,7 +278,7 @@ function Editeur({ inventaire }: { inventaire: Inventaire | null }) {
                             inputMode="decimal"
                             value={saisie}
                             onChange={(e) => setComptes((c) => ({ ...c, [a.id]: e.target.value }))}
-                            className={`montant h-9 w-full rounded-lg border bg-surface px-3 text-right text-sm outline-none focus:border-primary ${invalide ? "border-danger" : "border-border"}`}
+                            className={`montant h-9 w-full rounded-xl border bg-surface px-3 text-right text-sm outline-none focus:border-primary ${invalide ? "border-danger" : "border-border"}`}
                           />
                         </td>
                         <td className="px-2 py-2 text-right">
@@ -337,22 +337,24 @@ function InventaireValide({ inventaire: i }: { inventaire: Inventaire }) {
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {[
             ["Articles comptés", String(lignes.length), ""],
-            ["Avec écart", String(avecEcart.length), avecEcart.length ? "text-amber-700" : ""],
+            ["Avec écart", String(avecEcart.length), avecEcart.length ? "text-warning" : ""],
             ["Écart valorisé", formaterXOF(i.ecart_valeur), i.ecart_valeur < 0 ? "text-danger" : ""],
           ].map(([libelle, valeur, classe]) => (
-            <div key={libelle} className="rounded-xl border border-border bg-surface p-4">
-              <p className="text-sm text-muted">{libelle}</p>
-              <p className={`montant mt-1 text-lg font-semibold ${classe}`}>{valeur}</p>
-            </div>
+            <Indicateur
+              key={libelle}
+              libelle={libelle}
+              valeur={valeur}
+              ton={classe.includes("danger") ? "danger" : classe.includes("warning") ? "attention" : "neutre"}
+            />
           ))}
-          <div className="flex items-center rounded-xl border border-border bg-surface p-4">
+          <div className="flex items-center rounded-2xl border border-border bg-surface p-4 shadow-carte">
             <Badge ton="vert">Validé — inaltérable</Badge>
           </div>
         </div>
         <Carte>
           <div className="-m-5 overflow-x-auto">
             <table className="w-full min-w-[40rem] text-sm">
-              <thead className="border-b border-border bg-background text-left text-xs uppercase tracking-wide text-muted">
+              <thead className="border-b border-border bg-surface-retrait text-left text-xs uppercase tracking-wide text-muted">
                 <tr>
                   <th className="px-5 py-2.5 font-medium">Article</th>
                   <th className="px-2 py-2.5 text-right font-medium">Théorique</th>

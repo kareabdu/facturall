@@ -70,7 +70,7 @@ export default function PagePlan() {
             placeholder="Rechercher (numéro ou intitulé)…"
             value={recherche}
             onChange={(e) => setRecherche(e.target.value)}
-            className="h-9 min-w-56 flex-1 rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-primary"
+            className="h-9 min-w-56 flex-1 rounded-xl border border-border bg-surface px-3 text-sm outline-none focus:border-primary"
           />
           <div className="flex flex-wrap gap-1">
             {[null, 1, 2, 3, 4, 5, 6, 7, 8].map((c) => (
@@ -79,7 +79,7 @@ export default function PagePlan() {
                 onClick={() => setClasse(c)}
                 title={c ? CLASSES_SYSCOHADA[c] : "Toutes les classes"}
                 className={`h-9 min-w-9 rounded-lg px-2.5 text-sm font-medium ${
-                  classe === c ? "bg-primary text-white" : "bg-background text-muted hover:text-foreground"
+                  classe === c ? "bg-primary text-on-primary" : "bg-background text-muted hover:text-foreground"
                 }`}
               >
                 {c ?? "Toutes"}
@@ -193,10 +193,10 @@ function LigneCompte({
           {c.origine === "entreprise" && <Badge ton="vert">Ajouté</Badge>}
           {modifiable && (
             <span className="flex shrink-0 gap-1">
-              <button className="rounded px-2 py-1 text-xs text-muted hover:bg-background hover:text-foreground" onClick={() => setEdition(true)}>
+              <button className="rounded px-2 py-1 text-xs text-muted hover:bg-surface-retrait hover:text-foreground" onClick={() => setEdition(true)}>
                 Renommer
               </button>
-              <button className="rounded px-2 py-1 text-xs text-muted hover:bg-background hover:text-foreground" onClick={() => void onBasculer()}>
+              <button className="rounded px-2 py-1 text-xs text-muted hover:bg-surface-retrait hover:text-foreground" onClick={() => void onBasculer()}>
                 {c.actif ? "Désactiver" : "Réactiver"}
               </button>
             </span>

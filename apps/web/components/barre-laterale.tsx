@@ -1,34 +1,69 @@
 "use client";
 
-import { LIBELLES_ROLES, peutLireAchats, peutLireCompta, peutLireStock, type Role } from "@facturall/core";
+import {
+  LIBELLES_ROLES,
+  LIBELLES_THEMES,
+  peutLireAchats,
+  peutLireCompta,
+  peutLireStock,
+  type PreferenceTheme,
+  type Role,
+} from "@facturall/core";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, type ReactNode, type SelectHTMLAttributes } from "react";
 
-import { Liste, Logo } from "@/components/ui";
+import { Icone, type NomIcone } from "@/components/icones";
+import { Logo } from "@/components/ui";
 import { oublierEspace, useEspace } from "@/lib/espace";
 import { useSession } from "@/lib/session";
 import { supabase } from "@/lib/supabase";
+import { changerTheme, usePreferenceTheme } from "@/lib/theme";
 
 interface Lien {
   href: string;
   libelle: string;
+  icone: NomIcone;
   bientot?: boolean;
   /** Affiché seulement si la condition est vraie pour le rôle */
   visible?: (role: Role | null) => boolean;
 }
 
-const LIENS: Lien[] = [
-  { href: "/tableau-de-bord", libelle: "Tableau de bord" },
-  { href: "/ventes", libelle: "Ventes" },
-  { href: "/achats", libelle: "Achats", visible: peutLireAchats },
-  { href: "/stock", libelle: "Stock", visible: peutLireStock },
-  { href: "/comptabilite", libelle: "Comptabilité", visible: peutLireCompta },
-  { href: "#banque", libelle: "Banque", bientot: true },
-  { href: "/boutiques", libelle: "Boutiques" },
-  { href: "/membres", libelle: "Membres" },
-  { href: "/entreprise", libelle: "Entreprise" },
+const GROUPES: { titre?: string; liens: Lien[] }[] = [
+  {
+    liens: [
+      { href: "/tableau-de-bord", libelle: "Tableau de bord", icone: "accueil" },
+      { href: "/ventes", libelle: "Ventes", icone: "ventes" },
+      { href: "/achats", libelle: "Achats", icone: "achats", visible: peutLireAchats },
+      { href: "/stock", libelle: "Stock", icone: "stock", visible: peutLireStock },
+      { href: "/comptabilite", libelle: "Comptabilité", icone: "comptabilite", visible: peutLireCompta },
+      { href: "#banque", libelle: "Banque", icone: "banque", bientot: true },
+    ],
+  },
+  {
+    titre: "Organisation",
+    liens: [
+      { href: "/boutiques", libelle: "Boutiques", icone: "boutiques" },
+      { href: "/membres", libelle: "Membres", icone: "membres" },
+      { href: "/entreprise", libelle: "Entreprise", icone: "entreprise" },
+    ],
+  },
 ];
+
+const THEMES: { valeur: PreferenceTheme; icone: NomIcone }[] = [
+  { valeur: "auto", icone: "ecran" },
+  { valeur: "clair", icone: "soleil" },
+  { valeur: "sombre", icone: "lune" },
+];
+
+function ListePanneau(props: SelectHTMLAttributes<HTMLSelectElement> & { children: ReactNode }) {
+  return (
+    <select
+      {...props}
+      className="h-10 w-full rounded-xl border border-panneau-bordure bg-white/5 px-3 pr-8 text-sm text-panneau-texte outline-none transition focus:border-accent focus:ring-4 focus:ring-accent/20 disabled:opacity-60 [&>option]:bg-panneau"
+    />
+  );
+}
 
 export function BarreLaterale() {
   const { session } = useSession();
@@ -36,6 +71,7 @@ export function BarreLaterale() {
   const pathname = usePathname();
   const router = useRouter();
   const [ouvert, setOuvert] = useState(false);
+  const theme = usePreferenceTheme();
 
   async function deconnexion() {
     oublierEspace();
@@ -44,23 +80,35 @@ export function BarreLaterale() {
   }
 
   const boutiquesActives = boutiques.filter((b) => b.active);
+  const nom = (session?.user.user_metadata?.nom_complet as string | undefined) ?? session?.user.email ?? "";
+  const initiales = nom
+    .split(/[\s@.]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((m) => m[0]?.toUpperCase())
+    .join("");
 
   return (
-    <aside className="print:hidden border-b border-border bg-surface md:sticky md:top-0 md:flex md:h-screen md:w-64 md:flex-col md:border-b-0 md:border-r">
-      <div className="flex items-center justify-between px-4 py-4">
-        <Logo />
+    <aside className="sticky top-0 z-30 bg-panneau text-panneau-texte print:hidden md:flex md:h-screen md:w-64 md:shrink-0 md:flex-col">
+      <div className="flex items-center justify-between px-4 py-4 md:px-5 md:py-5">
+        <Link href="/tableau-de-bord" onClick={() => setOuvert(false)}>
+          <Logo inverse />
+        </Link>
         <button
-          className="rounded-lg px-3 py-1.5 text-sm text-muted hover:bg-background md:hidden"
+          className="grid size-10 place-items-center rounded-xl text-panneau-discret hover:bg-white/5 hover:text-panneau-texte md:hidden"
           onClick={() => setOuvert((o) => !o)}
           aria-expanded={ouvert}
+          aria-label={ouvert ? "Fermer le menu" : "Ouvrir le menu"}
         >
-          {ouvert ? "Fermer" : "Menu"}
+          <Icone nom={ouvert ? "fermer" : "menu"} />
         </button>
       </div>
 
-      <div className={`${ouvert ? "flex" : "hidden"} flex-1 flex-col gap-4 overflow-y-auto px-3 pb-4 md:flex`}>
-        <div className="flex flex-col gap-2 rounded-xl bg-background p-3">
-          <Liste
+      <div
+        className={`${ouvert ? "flex" : "hidden"} max-h-[calc(100dvh-4.5rem)] flex-1 flex-col gap-5 overflow-y-auto px-3 pb-4 md:flex md:max-h-none`}
+      >
+        <div className="flex flex-col gap-2 rounded-2xl border border-panneau-bordure bg-white/[0.03] p-3">
+          <ListePanneau
             aria-label="Entreprise"
             value={entreprise?.entreprise_id ?? ""}
             onChange={(e) => {
@@ -74,8 +122,8 @@ export function BarreLaterale() {
               </option>
             ))}
             <option value="__nouvelle">+ Nouvelle entreprise…</option>
-          </Liste>
-          <Liste
+          </ListePanneau>
+          <ListePanneau
             aria-label="Boutique"
             value={boutique?.id ?? ""}
             onChange={(e) => choisirBoutique(e.target.value)}
@@ -87,46 +135,88 @@ export function BarreLaterale() {
                 {b.nom}
               </option>
             ))}
-          </Liste>
-          {role && <p className="px-1 text-xs text-muted">Votre rôle : {LIBELLES_ROLES[role]}</p>}
+          </ListePanneau>
         </div>
 
-        <nav className="flex flex-col gap-0.5">
-          {LIENS.filter((l) => !l.visible || l.visible(role)).map((l) =>
-            l.bientot ? (
-              <span
-                key={l.href}
-                className="flex items-center justify-between rounded-lg px-3 py-2 text-sm text-muted/70"
-                title="Disponible dans une prochaine étape"
-              >
-                {l.libelle}
-                <span className="text-[10px] uppercase tracking-wide">bientôt</span>
-              </span>
-            ) : (
-              <Link
-                key={l.href}
-                href={l.href}
-                onClick={() => setOuvert(false)}
-                className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                  pathname === l.href || pathname.startsWith(l.href + "/") ? "bg-primary-soft text-primary" : "text-foreground hover:bg-background"
+        {GROUPES.map((g, i) => (
+          <nav key={i} className="flex flex-col gap-0.5" aria-label={g.titre ?? "Navigation principale"}>
+            {g.titre && (
+              <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-panneau-discret/80">{g.titre}</p>
+            )}
+            {g.liens
+              .filter((l) => !l.visible || l.visible(role))
+              .map((l) => {
+                if (l.bientot) {
+                  return (
+                    <span
+                      key={l.href}
+                      className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-panneau-discret/60"
+                      title="Disponible dans une prochaine étape"
+                    >
+                      <Icone nom={l.icone} />
+                      {l.libelle}
+                      <span className="ml-auto rounded-full bg-white/5 px-2 py-0.5 text-[10px] uppercase tracking-wide">bientôt</span>
+                    </span>
+                  );
+                }
+                const actif = pathname === l.href || pathname.startsWith(l.href + "/");
+                return (
+                  <Link
+                    key={l.href}
+                    href={l.href}
+                    onClick={() => setOuvert(false)}
+                    aria-current={actif ? "page" : undefined}
+                    className={`relative flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors ${
+                      actif ? "bg-accent/15 text-white" : "text-panneau-discret hover:bg-white/5 hover:text-panneau-texte"
+                    }`}
+                  >
+                    {actif && <span className="absolute inset-y-2 left-0 w-1 rounded-full bg-accent" />}
+                    <Icone nom={l.icone} className={actif ? "text-accent" : ""} />
+                    {l.libelle}
+                  </Link>
+                );
+              })}
+          </nav>
+        ))}
+
+        <div className="mt-auto flex flex-col gap-3 border-t border-panneau-bordure pt-4">
+          <div role="radiogroup" aria-label="Apparence" className="grid grid-cols-3 gap-1 rounded-xl bg-white/5 p-1">
+            {THEMES.map((t) => (
+              <button
+                key={t.valeur}
+                role="radio"
+                aria-checked={theme === t.valeur}
+                title={LIBELLES_THEMES[t.valeur]}
+                onClick={() => changerTheme(t.valeur)}
+                className={`flex h-8 items-center justify-center gap-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  theme === t.valeur ? "bg-white/10 text-white" : "text-panneau-discret hover:text-panneau-texte"
                 }`}
               >
-                {l.libelle}
-              </Link>
-            ),
-          )}
-        </nav>
+                <Icone nom={t.icone} taille={15} />
+                <span className="hidden lg:inline">{t.valeur === "auto" ? "Auto" : LIBELLES_THEMES[t.valeur]}</span>
+              </button>
+            ))}
+          </div>
 
-        <div className="mt-auto border-t border-border pt-3">
-          <p className="truncate px-3 text-xs text-muted" title={session?.user.email}>
-            {session?.user.email}
-          </p>
-          <button
-            onClick={() => void deconnexion()}
-            className="mt-1 w-full rounded-lg px-3 py-2 text-left text-sm text-muted hover:bg-background hover:text-foreground"
-          >
-            Se déconnecter
-          </button>
+          <div className="flex items-center gap-3 px-1">
+            <span className="grid size-9 shrink-0 place-items-center rounded-full bg-accent/20 text-xs font-semibold text-accent">
+              {initiales || "?"}
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium" title={session?.user.email}>
+                {nom}
+              </p>
+              {role && <p className="truncate text-xs text-panneau-discret">{LIBELLES_ROLES[role]}</p>}
+            </div>
+            <button
+              onClick={() => void deconnexion()}
+              title="Se déconnecter"
+              aria-label="Se déconnecter"
+              className="grid size-9 place-items-center rounded-xl text-panneau-discret hover:bg-white/5 hover:text-panneau-texte"
+            >
+              <Icone nom="deconnexion" taille={18} />
+            </button>
+          </div>
         </div>
       </div>
     </aside>

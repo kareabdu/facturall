@@ -19,7 +19,7 @@ import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { Alerte, Bouton, Carte, Champ, Ecran, Pastilles } from '@/components/formulaire';
 import { ThemedText } from '@/components/themed-text';
-import { BottomTabInset, Couleurs, Spacing } from '@/constants/theme';
+import { BottomTabInset, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useEspace } from '@/lib/espace';
 import { supabase } from '@/lib/supabase';
@@ -63,6 +63,8 @@ export default function Caisse() {
   }, [entrepriseId]);
 
   useEffect(() => {
+    // Chargement asynchrone : les setState ont lieu après la requête (même convention que le web)
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void charger();
   }, [charger]);
 
@@ -134,7 +136,7 @@ export default function Caisse() {
               setSens(s);
               setCompteId('');
             }}
-            style={[styles.option, sens === s && { backgroundColor: s === 'recette' ? Couleurs.primaire : theme.text }]}>
+            style={[styles.option, sens === s && { backgroundColor: s === 'recette' ? theme.primary : theme.text }]}>
             <ThemedText type="smallBold" style={{ color: sens === s ? theme.background : theme.textSecondary }}>
               {s === 'recette' ? 'Recette' : 'Dépense'}
             </ThemedText>
@@ -175,7 +177,7 @@ export default function Caisse() {
             <ThemedText style={{ flex: 1 }}>
               {choisie.numero} — {choisie.libelle}
             </ThemedText>
-            <ThemedText type="small" style={{ color: Couleurs.primaire }}>
+            <ThemedText type="small" style={{ color: theme.primary }}>
               Changer
             </ThemedText>
           </Pressable>
@@ -222,7 +224,7 @@ export default function Caisse() {
                   {formaterDate(e.date_ecriture)} · {e.numero}
                 </ThemedText>
               </View>
-              <ThemedText type="smallBold" style={{ color: entree ? Couleurs.primaire : theme.text }}>
+              <ThemedText type="smallBold" style={{ color: entree ? theme.primary : theme.text }}>
                 {entree ? '+' : '−'}
                 {formaterXOF(e.total)}
               </ThemedText>

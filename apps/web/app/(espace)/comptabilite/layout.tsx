@@ -1,10 +1,9 @@
 "use client";
 
 import { peutLireCompta } from "@facturall/core";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { Alerte, Chargement, Liste } from "@/components/ui";
+import { Alerte, Chargement, Liste, Onglets } from "@/components/ui";
 import { ComptaProvider, useCompta } from "@/lib/compta";
 import { useEspace } from "@/lib/espace";
 
@@ -62,22 +61,10 @@ function Cadre({ children }: { children: React.ReactNode }) {
         )}
       </div>
 
-      <nav className="-mx-1 mb-6 flex gap-1 overflow-x-auto border-b border-border px-1">
-        {ONGLETS.filter((o) => !o.saisie || peutSaisir).map((o) => {
-          const actif = o.href === "/comptabilite" ? pathname === o.href : pathname.startsWith(o.href);
-          return (
-            <Link
-              key={o.href}
-              href={o.href}
-              className={`-mb-px whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
-                actif ? "border-primary text-primary" : "border-transparent text-muted hover:text-foreground"
-              }`}
-            >
-              {o.libelle}
-            </Link>
-          );
-        })}
-      </nav>
+      <Onglets
+        onglets={ONGLETS.filter((o) => !o.saisie || peutSaisir)}
+        actif={(href) => (href === "/comptabilite" ? pathname === href : pathname.startsWith(href))}
+      />
 
       {erreur ? <Alerte>{erreur}</Alerte> : chargement ? <Chargement /> : children}
     </>

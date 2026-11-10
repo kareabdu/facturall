@@ -116,17 +116,17 @@ export default function PageBalance() {
 
       {lignes && lignes.length > 0 && (
         <div className="grid gap-3 sm:grid-cols-3">
-          <div className="rounded-xl border border-border bg-surface p-4">
+          <div className="rounded-2xl border border-border bg-surface p-4 shadow-carte">
             <p className="text-sm text-muted">Total des mouvements</p>
             <p className="montant mt-1 text-lg font-semibold">{formaterXOF(total.debit)}</p>
           </div>
-          <div className="rounded-xl border border-border bg-surface p-4">
+          <div className="rounded-2xl border border-border bg-surface p-4 shadow-carte">
             <p className="text-sm text-muted">Contrôle d&apos;équilibre</p>
             <p className={`mt-1 text-lg font-semibold ${total.debit === total.credit ? "text-primary" : "text-danger"}`}>
               {total.debit === total.credit ? "✓ Débit = crédit" : "Déséquilibre !"}
             </p>
           </div>
-          <div className="rounded-xl border border-border bg-surface p-4">
+          <div className="rounded-2xl border border-border bg-surface p-4 shadow-carte">
             <p className="text-sm text-muted">Résultat provisoire (classes 6 à 8)</p>
             <p className={`montant mt-1 text-lg font-semibold ${resultat < 0 ? "text-danger" : "text-primary"}`}>
               {resultat >= 0 ? "Bénéfice " : "Perte "}
@@ -144,7 +144,7 @@ export default function PageBalance() {
         ) : (
           <div className="-mx-5 -my-5 overflow-x-auto">
             <table className="w-full min-w-[48rem] text-sm">
-              <thead className="border-b border-border bg-background text-left text-xs uppercase tracking-wide text-muted">
+              <thead className="border-b border-border bg-surface-retrait text-left text-xs uppercase tracking-wide text-muted">
                 <tr>
                   <th className="px-5 py-2.5 font-medium">Compte</th>
                   <th className="px-2 py-2.5 font-medium">Intitulé</th>
@@ -165,7 +165,7 @@ export default function PageBalance() {
                     {comptes.map((l) => (
                       <Fragment key={l.compte_id}>
                         <tr
-                          className="cursor-pointer border-t border-border/60 hover:bg-background"
+                          className="cursor-pointer border-t border-border/60 hover:bg-surface-retrait"
                           onClick={() => void ouvrir(l.compte_id)}
                           aria-expanded={compteOuvert === l.compte_id}
                           title="Afficher le grand livre du compte"

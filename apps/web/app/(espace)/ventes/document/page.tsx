@@ -288,7 +288,7 @@ function Editeur({
                       <input
                         aria-label="Quantité"
                         inputMode="decimal"
-                        className="h-10 w-full rounded-lg border border-border bg-surface px-2 text-right text-sm outline-none focus:border-primary"
+                        className="h-10 w-full rounded-xl border border-border bg-surface px-2 text-right text-sm outline-none focus:border-primary"
                         defaultValue={String(l.quantite).replace(".", ",")}
                         onChange={(e) => maj(l.cle, { quantite: Number(e.target.value.replace(",", ".").replace(/\s/g, "")) || 0 })}
                       />
@@ -309,7 +309,7 @@ function Editeur({
                       <input
                         aria-label="Remise %"
                         inputMode="decimal"
-                        className="h-10 w-full rounded-lg border border-border bg-surface px-2 text-right text-sm outline-none focus:border-primary"
+                        className="h-10 w-full rounded-xl border border-border bg-surface px-2 text-right text-sm outline-none focus:border-primary"
                         defaultValue={l.remise_pct ? String(l.remise_pct).replace(".", ",") : ""}
                         placeholder="0"
                         onChange={(e) => maj(l.cle, { remise_pct: Math.min(100, Math.max(0, Number(e.target.value.replace(",", ".")) || 0)) })}
@@ -331,7 +331,7 @@ function Editeur({
                         aria-label="Supprimer la ligne"
                         disabled={lignes.length <= 1}
                         onClick={() => setLignes((ls) => ls.filter((x) => x.cle !== l.cle))}
-                        className="grid size-10 place-items-center rounded-lg text-muted hover:bg-background hover:text-danger disabled:opacity-30"
+                        className="grid size-10 place-items-center rounded-lg text-muted hover:bg-surface-retrait hover:text-danger disabled:opacity-30"
                       >
                         ×
                       </button>
@@ -365,7 +365,7 @@ function Editeur({
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           placeholder="Ex. : conditions de livraison, garantie…"
-          className="w-full rounded-lg border border-border bg-surface p-3 text-sm outline-none focus:border-primary"
+          className="w-full rounded-xl border border-border bg-surface p-3 text-sm outline-none focus:border-primary"
         />
       </Carte>
 
@@ -470,7 +470,7 @@ function ChoixArticle({
     <div ref={conteneur} className="relative" onBlur={(e) => !conteneur.current?.contains(e.relatedTarget as Node) && setOuvert(false)}>
       <input
         aria-label="Désignation"
-        className="h-10 w-full rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+        className="h-10 w-full rounded-xl border border-border bg-surface px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
         placeholder="Article ou désignation libre…"
         value={designation}
         onFocus={() => setOuvert(true)}
@@ -480,7 +480,7 @@ function ChoixArticle({
         }}
       />
       {ouvert && resultats.length > 0 && (
-        <ul className="absolute z-20 mt-1 max-h-64 w-full min-w-80 overflow-auto rounded-lg border border-border bg-surface py-1 text-sm shadow-lg">
+        <ul className="absolute z-20 mt-1 max-h-64 w-full min-w-80 overflow-auto rounded-xl border border-border bg-surface py-1 text-sm shadow-menu">
           {resultats.map((a) => (
             <li
               key={a.id}
@@ -615,15 +615,15 @@ function Consultation({ document: d, recharger }: { document: DocumentVente; rec
 
       {d.type === "facture" && d.statut === "valide" && (
         <div className="grid gap-3 sm:grid-cols-3 print:hidden">
-          <div className="rounded-xl border border-border bg-surface p-4">
+          <div className="rounded-2xl border border-border bg-surface p-4 shadow-carte">
             <p className="text-sm text-muted">Total TTC</p>
             <p className="montant mt-1 text-lg font-semibold">{formaterXOF(d.total_ttc)}</p>
           </div>
-          <div className="rounded-xl border border-border bg-surface p-4">
+          <div className="rounded-2xl border border-border bg-surface p-4 shadow-carte">
             <p className="text-sm text-muted">Réglé{d.montant_avoir ? " / avoir" : ""}</p>
             <p className="montant mt-1 text-lg font-semibold">{formaterXOF(d.montant_regle + d.montant_avoir)}</p>
           </div>
-          <div className="rounded-xl border border-border bg-surface p-4">
+          <div className="rounded-2xl border border-border bg-surface p-4 shadow-carte">
             <p className="text-sm text-muted">Reste à payer</p>
             <p className={`montant mt-1 text-lg font-semibold ${reste > 0 ? "" : "text-primary"}`}>{formaterXOF(reste)}</p>
             {d.date_echeance && reste > 0 && <p className="text-xs text-muted">Échéance : {formaterDate(d.date_echeance)}</p>}

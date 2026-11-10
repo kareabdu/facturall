@@ -63,7 +63,7 @@ export default function PageArticles() {
           placeholder="Désignation ou référence…"
           value={recherche}
           onChange={(e) => setRecherche(e.target.value)}
-          className="h-10 min-w-56 flex-1 rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-primary sm:max-w-80"
+          className="h-10 min-w-56 flex-1 rounded-xl border border-border bg-surface px-3 text-sm outline-none focus:border-primary sm:max-w-80"
         />
         {gereCatalogue && <Bouton className="ml-auto" onClick={() => setEdition("nouveau")}>Nouvel article</Bouton>}
       </div>
@@ -85,7 +85,7 @@ export default function PageArticles() {
       <Carte titre="Articles" action={<span className="text-sm text-muted">{articles.length} article(s)</span>}>
         <div className="-m-5 overflow-x-auto">
           <table className="w-full min-w-[40rem] text-sm">
-            <thead className="border-b border-border bg-background text-left text-xs uppercase tracking-wide text-muted">
+            <thead className="border-b border-border bg-surface-retrait text-left text-xs uppercase tracking-wide text-muted">
               <tr>
                 <th className="px-5 py-2.5 font-medium">Réf.</th>
                 <th className="px-2 py-2.5 font-medium">Désignation</th>
@@ -114,9 +114,9 @@ export default function PageArticles() {
                   <td className="px-5 py-3 text-right">
                     {gereCatalogue && (
                       <span className="flex justify-end gap-1">
-                        <button className="rounded px-2 py-1 text-xs text-muted hover:bg-background hover:text-foreground" onClick={() => setEdition(a)}>Modifier</button>
+                        <button className="rounded px-2 py-1 text-xs text-muted hover:bg-surface-retrait hover:text-foreground" onClick={() => setEdition(a)}>Modifier</button>
                         <button
-                          className="rounded px-2 py-1 text-xs text-muted hover:bg-background hover:text-foreground"
+                          className="rounded px-2 py-1 text-xs text-muted hover:bg-surface-retrait hover:text-foreground"
                           onClick={() => void agir(() => modifierArticle(supabase, a.id, { actif: !a.actif }), a.actif ? "Article désactivé." : "Article réactivé.")}
                         >
                           {a.actif ? "Désactiver" : "Réactiver"}
@@ -362,7 +362,7 @@ function ParametresFacture({
             value={m}
             onChange={(e) => setM(e.target.value)}
             placeholder="Ex. : Paiement par Wave au 77 000 00 00 · Banque XYZ, IBAN… · Pénalités de retard…"
-            className="rounded-lg border border-border bg-surface p-3 text-sm outline-none focus:border-primary"
+            className="rounded-xl border border-border bg-surface p-3 text-sm outline-none focus:border-primary"
           />
         </label>
         <div className="flex justify-end sm:col-span-2">
