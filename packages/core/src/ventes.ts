@@ -66,6 +66,10 @@ export interface Article {
   taux_tva_id: string | null;
   compte_vente_id: string | null;
   actif: boolean;
+  /** Article stocké : ses entrées et sorties sont suivies par boutique (biens uniquement). */
+  suivi_stock: boolean;
+  /** Quantité en dessous de laquelle le stock est signalé comme bas. */
+  seuil_alerte: number | null;
 }
 
 export interface LigneDocument {
@@ -331,10 +335,17 @@ export async function chargerSituationClients(sb: SupabaseClient, entrepriseId: 
 export async function chargerArticles(sb: SupabaseClient, entrepriseId: string): Promise<Article[]> {
   const { data, error } = await sb.from("articles").select("*").eq("entreprise_id", entrepriseId).order("designation");
   echec(error);
-  return ((data ?? []) as Article[]).map((a) => ({ ...a, prix_vente: nombre(a.prix_vente) }));
+  return ((data ?? []) as Article[]).map((a) => ({
+    ...a,
+    prix_vente: nombre(a.prix_vente),
+    seuil_alerte: a.seuil_alerte == null ? null : nombre(a.seuil_alerte),
+  }));
 }
 
-export type SaisieArticle = Omit<Article, "id" | "entreprise_id" | "actif">;
+export type SaisieArticle = Omit<Article, "id" | "entreprise_id" | "actif" | "suivi_stock" | "seuil_alerte"> & {
+  suivi_stock?: boolean;
+  seuil_alerte?: number | null;
+};
 
 export async function creerArticle(sb: SupabaseClient, entrepriseId: string, a: SaisieArticle): Promise<Article> {
   const { data, error } = await sb.from("articles").insert({ entreprise_id: entrepriseId, ...a }).select("*").single();

@@ -4,6 +4,7 @@ import {
   annulerDevis,
   aujourdhui,
   calculerLigne,
+  chargerDisponibilites,
   chargerDocument,
   chargerEntreprise,
   chargerReglements,
@@ -11,6 +12,7 @@ import {
   enregistrerDocument,
   enregistrerReglement,
   formaterDate,
+  formaterQuantite,
   formaterXOF,
   LIBELLES_MODES_REGLEMENT,
   LIBELLES_TYPES_DOCUMENT,
@@ -135,6 +137,25 @@ function Editeur({
   const boutiquesActives = boutiques.filter((b) => b.active);
   const articlesActifs = articles.filter((a) => a.actif);
   const tauxActifs = taux.filter((t) => t.actif);
+
+  // Quantités disponibles dans la boutique (articles suivis en stock)
+  const avecStock = articles.some((a) => a.suivi_stock);
+  const [dispo, setDispo] = useState<{ boutique: string; quantites: Map<string, number> } | null>(null);
+  useEffect(() => {
+    if (!entreprise || !boutiqueId || !avecStock) return;
+    let actif = true;
+    chargerDisponibilites(supabase, entreprise.entreprise_id, boutiqueId)
+      .then((quantites) => actif && setDispo({ boutique: boutiqueId, quantites }))
+      .catch(() => {});
+    return () => {
+      actif = false;
+    };
+  }, [entreprise, boutiqueId, avecStock]);
+  const disponibles = dispo?.boutique === boutiqueId ? dispo.quantites : null;
+  const demandeParArticle = new Map<string, number>();
+  for (const l of lignes) {
+    if (l.article_id) demandeParArticle.set(l.article_id, (demandeParArticle.get(l.article_id) ?? 0) + (l.quantite || 0));
+  }
 
   if (!entreprise) return null;
 
@@ -271,6 +292,15 @@ function Editeur({
                         defaultValue={String(l.quantite).replace(".", ",")}
                         onChange={(e) => maj(l.cle, { quantite: Number(e.target.value.replace(",", ".").replace(/\s/g, "")) || 0 })}
                       />
+                      {disponibles && l.article_id && articleParId.get(l.article_id)?.suivi_stock && (
+                        <p
+                          className={`mt-0.5 text-right text-xs ${
+                            (demandeParArticle.get(l.article_id) ?? 0) > (disponibles.get(l.article_id) ?? 0) ? "text-danger" : "text-muted"
+                          }`}
+                        >
+                          Stock : {formaterQuantite(disponibles.get(l.article_id) ?? 0)}
+                        </p>
+                      )}
                     </td>
                     <td className="py-1 pl-2">
                       <ChampMontant ariaLabel="Prix unitaire HT" valeur={l.prix_unitaire} onChange={(v) => maj(l.cle, { prix_unitaire: v })} />

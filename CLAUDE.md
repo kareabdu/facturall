@@ -47,7 +47,8 @@ Avant chaque commit : `pnpm typecheck`, lint web, `pnpm test:db`, et `pnpm build
   Droits par colonne (`grant insert (…)` / `grant update (…)`), `revoke all … from anon, authenticated` d'abord.
 - Fonctions d'aide dans le schéma `prive` : `est_membre`, `a_role`, `est_admin`, `peut_acceder_boutique(boutique_id,
   entreprise_id)`, `est_compta`, `peut_lire_compta`, `est_vendeur`, `gere_catalogue`, `est_acheteur`,
-  `peut_lire_achats`, `verifier_vendeur_boutique`, `verifier_acheteur_boutique`.
+  `peut_lire_achats`, `verifier_vendeur_boutique`, `verifier_acheteur_boutique`, `gere_stock`,
+  `verifier_gestion_stock`. Tout mouvement de stock passe par `prive.mouvementer_stock(…)` (CMUP, contrôle du stock négatif).
 - **Montants entiers en FCFA** (`bigint`), jamais de décimales. Quantités `numeric(14,3)`.
 - **Numérotation continue sans trou** par compteurs verrouillés : `prive.compteurs_ecritures` (journal/exercice),
   `prive.compteurs_documents` via `prive.prochain_numero(entreprise, type, année)`. Numéro attribué à la validation.
@@ -81,11 +82,11 @@ TVA par défaut : 18 % (UEMOA), 19 % au Niger, plus « Exonéré ».
 
 Fait : socle (entreprises, boutiques, membres, invitations), comptabilité (plan, journaux, exercices, saisie simple
 et avancée, balance, grand livre), ventes (clients, articles, TVA, devis, factures, règlements, avoirs, impression),
-achats (fournisseurs, factures fournisseurs, paiements, avoirs).
+achats (fournisseurs, factures fournisseurs, paiements, avoirs), stock (articles suivis, CMUP par boutique, mouvements
+automatiques à la validation des factures et avoirs, entrées/sorties manuelles, transferts, inventaires).
 
 À faire, dans l'ordre prévu :
-1. **Stock** : articles stockés, mouvements par boutique (entrées depuis les achats, sorties depuis les ventes),
-   transferts entre boutiques, inventaire, valorisation (CMUP).
-2. Ventes et caisse sur **mobile** (encaissement rapide, ticket).
-3. **Rapprochement bancaire** : import CSV / Excel / PDF ou saisie manuelle, pointage avec les écritures 52x/55x/57x.
-4. Clôture d'exercice et états financiers SYSCOHADA (bilan, compte de résultat).
+1. Ventes et caisse sur **mobile** (encaissement rapide, ticket).
+2. **Rapprochement bancaire** : import CSV / Excel / PDF ou saisie manuelle, pointage avec les écritures 52x/55x/57x.
+3. Clôture d'exercice et états financiers SYSCOHADA (bilan, compte de résultat), dont la variation de stock
+   (603x / 3x, inventaire intermittent) à partir de la valorisation CMUP.

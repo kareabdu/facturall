@@ -24,6 +24,8 @@ export type Database = {
           id: string
           prix_vente: number
           reference: string | null
+          seuil_alerte: number | null
+          suivi_stock: boolean
           taux_tva_id: string | null
           type: string
           unite: string
@@ -38,6 +40,8 @@ export type Database = {
           id?: string
           prix_vente?: number
           reference?: string | null
+          seuil_alerte?: number | null
+          suivi_stock?: boolean
           taux_tva_id?: string | null
           type?: string
           unite?: string
@@ -52,6 +56,8 @@ export type Database = {
           id?: string
           prix_vente?: number
           reference?: string | null
+          seuil_alerte?: number | null
+          suivi_stock?: boolean
           taux_tva_id?: string | null
           type?: string
           unite?: string
@@ -810,6 +816,69 @@ export type Database = {
           },
         ]
       }
+      inventaires: {
+        Row: {
+          boutique_id: string
+          created_at: string
+          created_by: string | null
+          date_inventaire: string
+          ecart_valeur: number
+          entreprise_id: string
+          id: string
+          notes: string | null
+          numero: string | null
+          statut: string
+          updated_at: string
+          valide_le: string | null
+          valide_par: string | null
+        }
+        Insert: {
+          boutique_id: string
+          created_at?: string
+          created_by?: string | null
+          date_inventaire?: string
+          ecart_valeur?: number
+          entreprise_id: string
+          id?: string
+          notes?: string | null
+          numero?: string | null
+          statut?: string
+          updated_at?: string
+          valide_le?: string | null
+          valide_par?: string | null
+        }
+        Update: {
+          boutique_id?: string
+          created_at?: string
+          created_by?: string | null
+          date_inventaire?: string
+          ecart_valeur?: number
+          entreprise_id?: string
+          id?: string
+          notes?: string | null
+          numero?: string | null
+          statut?: string
+          updated_at?: string
+          valide_le?: string | null
+          valide_par?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventaires_boutique_id_entreprise_id_fkey"
+            columns: ["boutique_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "boutiques"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+          {
+            foreignKeyName: "inventaires_entreprise_id_fkey"
+            columns: ["entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "entreprises"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invitations: {
         Row: {
           acceptee_le: string | null
@@ -1080,6 +1149,102 @@ export type Database = {
           },
         ]
       }
+      lignes_inventaire: {
+        Row: {
+          article_id: string
+          ecart: number | null
+          entreprise_id: string
+          id: string
+          inventaire_id: string
+          ordre: number
+          quantite_comptee: number
+          quantite_theorique: number | null
+          valeur_ecart: number | null
+        }
+        Insert: {
+          article_id: string
+          ecart?: number | null
+          entreprise_id: string
+          id?: string
+          inventaire_id: string
+          ordre: number
+          quantite_comptee: number
+          quantite_theorique?: number | null
+          valeur_ecart?: number | null
+        }
+        Update: {
+          article_id?: string
+          ecart?: number | null
+          entreprise_id?: string
+          id?: string
+          inventaire_id?: string
+          ordre?: number
+          quantite_comptee?: number
+          quantite_theorique?: number | null
+          valeur_ecart?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lignes_inventaire_article_id_entreprise_id_fkey"
+            columns: ["article_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+          {
+            foreignKeyName: "lignes_inventaire_inventaire_id_entreprise_id_fkey"
+            columns: ["inventaire_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "inventaires"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+        ]
+      }
+      lignes_transferts_stock: {
+        Row: {
+          article_id: string
+          entreprise_id: string
+          id: string
+          ordre: number
+          quantite: number
+          transfert_id: string
+          valeur: number
+        }
+        Insert: {
+          article_id: string
+          entreprise_id: string
+          id?: string
+          ordre: number
+          quantite: number
+          transfert_id: string
+          valeur: number
+        }
+        Update: {
+          article_id?: string
+          entreprise_id?: string
+          id?: string
+          ordre?: number
+          quantite?: number
+          transfert_id?: string
+          valeur?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lignes_transferts_stock_article_id_entreprise_id_fkey"
+            columns: ["article_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+          {
+            foreignKeyName: "lignes_transferts_stock_transfert_id_entreprise_id_fkey"
+            columns: ["transfert_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "transferts_stock"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+        ]
+      }
       membres: {
         Row: {
           actif: boolean
@@ -1153,6 +1318,122 @@ export type Database = {
             columns: ["membre_id", "entreprise_id"]
             isOneToOne: false
             referencedRelation: "membres"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+        ]
+      }
+      mouvements_stock: {
+        Row: {
+          article_id: string
+          boutique_id: string
+          cmup_apres: number
+          cout_unitaire: number
+          created_at: string
+          created_by: string | null
+          date_mouvement: string
+          document_achat_id: string | null
+          document_vente_id: string | null
+          entreprise_id: string
+          id: string
+          inventaire_id: string | null
+          motif: string | null
+          quantite: number
+          quantite_apres: number
+          transfert_id: string | null
+          type: string
+          valeur: number
+          valeur_apres: number
+        }
+        Insert: {
+          article_id: string
+          boutique_id: string
+          cmup_apres: number
+          cout_unitaire: number
+          created_at?: string
+          created_by?: string | null
+          date_mouvement: string
+          document_achat_id?: string | null
+          document_vente_id?: string | null
+          entreprise_id: string
+          id?: string
+          inventaire_id?: string | null
+          motif?: string | null
+          quantite: number
+          quantite_apres: number
+          transfert_id?: string | null
+          type: string
+          valeur: number
+          valeur_apres: number
+        }
+        Update: {
+          article_id?: string
+          boutique_id?: string
+          cmup_apres?: number
+          cout_unitaire?: number
+          created_at?: string
+          created_by?: string | null
+          date_mouvement?: string
+          document_achat_id?: string | null
+          document_vente_id?: string | null
+          entreprise_id?: string
+          id?: string
+          inventaire_id?: string | null
+          motif?: string | null
+          quantite?: number
+          quantite_apres?: number
+          transfert_id?: string | null
+          type?: string
+          valeur?: number
+          valeur_apres?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mouvements_stock_article_id_entreprise_id_fkey"
+            columns: ["article_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+          {
+            foreignKeyName: "mouvements_stock_boutique_id_entreprise_id_fkey"
+            columns: ["boutique_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "boutiques"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+          {
+            foreignKeyName: "mouvements_stock_document_achat_id_entreprise_id_fkey"
+            columns: ["document_achat_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "documents_achat"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+          {
+            foreignKeyName: "mouvements_stock_document_vente_id_entreprise_id_fkey"
+            columns: ["document_vente_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "documents_vente"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+          {
+            foreignKeyName: "mouvements_stock_entreprise_id_fkey"
+            columns: ["entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "entreprises"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mouvements_stock_inventaire_id_entreprise_id_fkey"
+            columns: ["inventaire_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "inventaires"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+          {
+            foreignKeyName: "mouvements_stock_transfert_id_entreprise_id_fkey"
+            columns: ["transfert_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "transferts_stock"
             referencedColumns: ["id", "entreprise_id"]
           },
         ]
@@ -1311,6 +1592,32 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "journaux"
             referencedColumns: ["id", "entreprise_id"]
+          },
+        ]
+      }
+      parametres_stock: {
+        Row: {
+          autoriser_stock_negatif: boolean
+          entreprise_id: string
+          updated_at: string
+        }
+        Insert: {
+          autoriser_stock_negatif?: boolean
+          entreprise_id: string
+          updated_at?: string
+        }
+        Update: {
+          autoriser_stock_negatif?: boolean
+          entreprise_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parametres_stock_entreprise_id_fkey"
+            columns: ["entreprise_id"]
+            isOneToOne: true
+            referencedRelation: "entreprises"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1501,6 +1808,58 @@ export type Database = {
           },
         ]
       }
+      stocks: {
+        Row: {
+          article_id: string
+          boutique_id: string
+          cmup: number
+          entreprise_id: string
+          quantite: number
+          updated_at: string
+          valeur: number
+        }
+        Insert: {
+          article_id: string
+          boutique_id: string
+          cmup?: number
+          entreprise_id: string
+          quantite?: number
+          updated_at?: string
+          valeur?: number
+        }
+        Update: {
+          article_id?: string
+          boutique_id?: string
+          cmup?: number
+          entreprise_id?: string
+          quantite?: number
+          updated_at?: string
+          valeur?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stocks_article_id_entreprise_id_fkey"
+            columns: ["article_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+          {
+            foreignKeyName: "stocks_boutique_id_entreprise_id_fkey"
+            columns: ["boutique_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "boutiques"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+          {
+            foreignKeyName: "stocks_entreprise_id_fkey"
+            columns: ["entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "entreprises"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       taux_tva: {
         Row: {
           actif: boolean
@@ -1559,12 +1918,85 @@ export type Database = {
           },
         ]
       }
+      transferts_stock: {
+        Row: {
+          boutique_destination_id: string
+          boutique_source_id: string
+          created_at: string
+          created_by: string | null
+          date_transfert: string
+          entreprise_id: string
+          id: string
+          notes: string | null
+          numero: string
+          valeur_totale: number
+        }
+        Insert: {
+          boutique_destination_id: string
+          boutique_source_id: string
+          created_at?: string
+          created_by?: string | null
+          date_transfert?: string
+          entreprise_id: string
+          id?: string
+          notes?: string | null
+          numero: string
+          valeur_totale?: number
+        }
+        Update: {
+          boutique_destination_id?: string
+          boutique_source_id?: string
+          created_at?: string
+          created_by?: string | null
+          date_transfert?: string
+          entreprise_id?: string
+          id?: string
+          notes?: string | null
+          numero?: string
+          valeur_totale?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transferts_stock_boutique_destination_id_entreprise_id_fkey"
+            columns: ["boutique_destination_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "boutiques"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+          {
+            foreignKeyName: "transferts_stock_boutique_source_id_entreprise_id_fkey"
+            columns: ["boutique_source_id", "entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "boutiques"
+            referencedColumns: ["id", "entreprise_id"]
+          },
+          {
+            foreignKeyName: "transferts_stock_entreprise_id_fkey"
+            columns: ["entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "entreprises"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
       accepter_invitations: { Args: never; Returns: number }
+      ajuster_stock: {
+        Args: {
+          p_article_id: string
+          p_boutique_id: string
+          p_cout_unitaire?: number
+          p_date?: string
+          p_entreprise_id: string
+          p_motif: string
+          p_quantite: number
+        }
+        Returns: string
+      }
       annuler_devis: { Args: { p_devis_id: string }; Returns: undefined }
       balance_generale: {
         Args: {
@@ -1638,6 +2070,13 @@ export type Database = {
         }
         Returns: string
       }
+      disponibilites_stock: {
+        Args: { p_boutique_id: string; p_entreprise_id: string }
+        Returns: {
+          article_id: string
+          quantite: number
+        }[]
+      }
       enregistrer_document_achat: {
         Args: {
           p_boutique_id: string
@@ -1678,6 +2117,17 @@ export type Database = {
           p_lignes: Json
           p_reference?: string
           p_valider?: boolean
+        }
+        Returns: string
+      }
+      enregistrer_inventaire: {
+        Args: {
+          p_boutique_id: string
+          p_date?: string
+          p_entreprise_id: string
+          p_inventaire_id?: string
+          p_lignes: Json
+          p_notes?: string
         }
         Returns: string
       }
@@ -1817,6 +2267,21 @@ export type Database = {
         Args: { p_document_id: string }
         Returns: undefined
       }
+      supprimer_inventaire: {
+        Args: { p_inventaire_id: string }
+        Returns: undefined
+      }
+      transferer_stock: {
+        Args: {
+          p_date?: string
+          p_destination_id: string
+          p_entreprise_id: string
+          p_lignes: Json
+          p_notes?: string
+          p_source_id: string
+        }
+        Returns: string
+      }
       transformer_devis: { Args: { p_devis_id: string }; Returns: string }
       valider_document_achat: {
         Args: { p_document_id: string; p_paiement?: Json }
@@ -1827,6 +2292,7 @@ export type Database = {
         Returns: string
       }
       valider_ecriture: { Args: { p_ecriture_id: string }; Returns: string }
+      valider_inventaire: { Args: { p_inventaire_id: string }; Returns: string }
     }
     Enums: {
       role_membre:

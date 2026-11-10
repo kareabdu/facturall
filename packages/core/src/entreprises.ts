@@ -29,6 +29,7 @@ export function traduireErreur(error: { message: string; code?: string }): strin
   if (/rate limit|too many requests/i.test(m)) return "Trop de tentatives. Réessayez dans quelques minutes.";
   if (/network|fetch failed|failed to fetch/i.test(m)) return "Connexion impossible. Vérifiez votre accès à Internet.";
   if (error.code === "23505" && /boutiques_entreprise_id_code_key/.test(m)) return "Ce code de boutique existe déjà.";
+  if (/articles_suivi_stock_biens/.test(m)) return "Seuls les biens (pas les services) peuvent être suivis en stock.";
   if (error.code === "42501" && /row-level security|permission denied/i.test(m)) return "Vous n'avez pas les droits pour cette action.";
   // Les messages levés par nos fonctions SQL sont déjà en français.
   return m;

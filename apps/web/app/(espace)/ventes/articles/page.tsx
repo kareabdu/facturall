@@ -103,7 +103,12 @@ export default function PageArticles() {
                     <span className={a.actif ? "font-medium" : "line-through"}>{a.designation}</span>
                     <span className="ml-2 text-xs text-muted">/ {a.unite}</span>
                   </td>
-                  <td className="px-2 py-3"><Badge>{a.type === "service" ? "Service" : "Bien"}</Badge></td>
+                  <td className="px-2 py-3">
+                    <span className="flex gap-1">
+                      <Badge>{a.type === "service" ? "Service" : "Bien"}</Badge>
+                      {a.suivi_stock && <Badge ton="vert">Stocké</Badge>}
+                    </span>
+                  </td>
                   <td className="px-2 py-3 text-muted">{(a.taux_tva_id ? tauxParId.get(a.taux_tva_id) : tauxDefaut)?.libelle}</td>
                   <td className="montant px-2 py-3 text-right font-medium">{formaterXOF(a.prix_vente)}</td>
                   <td className="px-5 py-3 text-right">
@@ -199,7 +204,10 @@ function FormulaireArticle({
     prix_vente: article?.prix_vente ?? 0,
     taux_tva_id: article?.taux_tva_id ?? null,
     compte_vente_id: article?.compte_vente_id ?? null,
+    suivi_stock: article ? article.suivi_stock : true,
+    seuil_alerte: article?.seuil_alerte ?? null,
   });
+  const [seuil, setSeuil] = useState(article?.seuil_alerte != null ? String(article.seuil_alerte).replace(".", ",") : "");
   const [compteSpecifique, setCompteSpecifique] = useState(!!article?.compte_vente_id);
   const [envoi, setEnvoi] = useState(false);
   const { comptes } = useComptesVente();
@@ -213,6 +221,8 @@ function FormulaireArticle({
       designation: f.designation.trim(),
       unite: f.unite.trim() || "unité",
       compte_vente_id: compteSpecifique ? f.compte_vente_id : null,
+      suivi_stock: f.type === "bien" && !!f.suivi_stock,
+      seuil_alerte: f.type === "bien" && f.suivi_stock && seuil.trim() !== "" ? Number(seuil.replace(",", ".")) : null,
     });
     setEnvoi(false);
   }
@@ -243,6 +253,29 @@ function FormulaireArticle({
             <span className="text-xs text-muted">{f.type === "service" ? "706 Services vendus" : "701 Ventes de marchandises"}</span>
           )}
         </div>
+        {f.type === "bien" && (
+          <>
+            <label className="flex items-center gap-2 text-sm font-medium sm:col-span-2 lg:col-span-1 lg:pt-7">
+              <input
+                type="checkbox"
+                className="accent-primary"
+                checked={!!f.suivi_stock}
+                onChange={(e) => setF({ ...f, suivi_stock: e.target.checked })}
+              />
+              Suivre le stock de cet article
+            </label>
+            {f.suivi_stock && (
+              <Champ
+                libelle="Seuil d'alerte"
+                inputMode="decimal"
+                value={seuil}
+                onChange={(e) => setSeuil(e.target.value.replace(/[^\d,.]/g, ""))}
+                placeholder="Ex. 5"
+                aide="Stock bas signalé à partir de cette quantité"
+              />
+            )}
+          </>
+        )}
         <div className="flex justify-end gap-3 sm:col-span-2 lg:col-span-4">
           <Bouton type="button" variante="secondaire" onClick={onAnnuler}>Annuler</Bouton>
           <Bouton type="submit" chargement={envoi} disabled={f.designation.trim().length < 2}>Enregistrer</Bouton>
