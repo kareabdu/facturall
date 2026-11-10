@@ -10,6 +10,7 @@ import {
   lireMontant,
   MODELE_CSV_RELEVE,
   resumeLignes,
+  tableauPDF,
   trouverEntetes,
   type Cellule,
   type LigneImport,
@@ -76,6 +77,14 @@ function decoderTexte(octets: ArrayBuffer): string {
   return utf8.includes("�") ? new TextDecoder("windows-1252").decode(octets) : utf8;
 }
 
+/** Résultat d'un import : opérations et soldes imprimés sur le relevé (s'ils sont repérés). */
+export interface ReleveImporte {
+  lignes: LigneImport[];
+  source: SourceReleve;
+  fichier: string;
+  soldes: { initial: number | null; final: number | null };
+}
+
 interface Fichier {
   nom: string;
   source: SourceReleve;
@@ -83,14 +92,14 @@ interface Fichier {
 }
 
 /**
- * Import d'un relevé : CSV ou Excel → choix du rôle des colonnes → aperçu → lignes.
- * Le PDF n'est pas lu automatiquement : on demande l'export CSV / Excel à la banque.
+ * Import d'un relevé : PDF (texte), CSV ou Excel → choix du rôle des colonnes → aperçu → lignes.
+ * Pour un PDF, le tableau est reconstruit d'après la position des textes (tableauPDF).
  */
 export function ImportReleve({
   onImporter,
   envoi = false,
 }: {
-  onImporter: (r: { lignes: LigneImport[]; source: SourceReleve; fichier: string }) => void;
+  onImporter: (r: ReleveImporte) => void;
   envoi?: boolean;
 }) {
   const idFichier = useId();
@@ -117,11 +126,11 @@ export function ImportReleve({
       } else if (/\.xls$/i.test(nom)) {
         throw new Error("Ancien format Excel (.xls) : enregistrez le fichier en .xlsx ou en CSV, puis réessayez.");
       } else if (/\.pdf$/i.test(nom)) {
-        throw new Error(
-          "Les relevés PDF ne sont pas encore lus automatiquement. Téléchargez le relevé au format CSV ou Excel depuis votre banque en ligne, ou saisissez les lignes à la main.",
-        );
+        const { lireElementsPDF } = await import("@/lib/pdf");
+        lignes = tableauPDF(await lireElementsPDF(f));
+        source = "pdf";
       } else {
-        throw new Error("Format non reconnu : choisissez un fichier CSV ou Excel (.xlsx).");
+        throw new Error("Format non reconnu : choisissez un relevé PDF, CSV ou Excel (.xlsx).");
       }
       if (lignes.length === 0) throw new Error("Le fichier est vide.");
       const i = trouverEntetes(lignes);
@@ -157,7 +166,7 @@ export function ImportReleve({
           htmlFor={idFichier}
           className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl border border-dashed border-primary/50 bg-primary-soft px-4 text-sm font-medium text-primary transition-colors hover:border-primary"
         >
-          {lecture ? "Lecture…" : fichier ? "Changer de fichier" : "Choisir un fichier CSV ou Excel"}
+          {lecture ? "Lecture…" : fichier ? "Changer de fichier" : "Choisir le relevé (PDF, Excel ou CSV)"}
         </label>
         <input
           id={idFichier}
@@ -259,11 +268,25 @@ export function ImportReleve({
                 {" · "}entrées <span className="montant text-primary">{formaterXOF(resume?.entrees ?? 0)}</span>
                 {" · "}sorties <span className="montant">{formaterXOF(resume?.sorties ?? 0)}</span>
                 {resultat.ignorees > 0 && <span className="text-muted"> · {resultat.ignorees} ligne(s) ignorée(s) (soldes, totaux…)</span>}
+                {(resultat.soldes.initial !== null || resultat.soldes.final !== null) && (
+                  <span className="mt-1 block text-muted">
+                    Soldes lus sur le relevé :{" "}
+                    {resultat.soldes.initial !== null && <>initial <span className="montant">{formaterXOF(resultat.soldes.initial)}</span></>}
+                    {resultat.soldes.initial !== null && resultat.soldes.final !== null && " → "}
+                    {resultat.soldes.final !== null && <>final <span className="montant">{formaterXOF(resultat.soldes.final)}</span></>}
+                    {resultat.soldes.initial !== null && resultat.soldes.final !== null &&
+                      (resultat.soldes.initial + (resume?.total ?? 0) === resultat.soldes.final ? (
+                        <span className="text-primary"> · cohérents avec les opérations ✓</span>
+                      ) : (
+                        <span className="text-warning"> · ne correspondent pas aux opérations : vérifiez les colonnes</span>
+                      ))}
+                  </span>
+                )}
               </p>
               <Bouton
                 disabled={resultat.lignes.length === 0}
                 chargement={envoi}
-                onClick={() => onImporter({ lignes: resultat.lignes, source: fichier.source, fichier: fichier.nom })}
+                onClick={() => onImporter({ lignes: resultat.lignes, source: fichier.source, fichier: fichier.nom, soldes: resultat.soldes })}
               >
                 Ajouter {resultat.lignes.length} opération(s)
               </Bouton>

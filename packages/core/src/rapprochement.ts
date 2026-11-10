@@ -377,6 +377,8 @@ export interface ResultatConversion {
   lignes: LigneImport[];
   /** Lignes du fichier ignorées (sans date ou sans montant : totaux, soldes, lignes vides) */
   ignorees: number;
+  /** Soldes imprimés sur le relevé (« Solde précédent », « Solde au … »), s'ils sont repérés */
+  soldes: { initial: number | null; final: number | null };
 }
 
 /** Convertit les lignes du fichier (sans l'en-tête) selon le rôle des colonnes. */
@@ -385,7 +387,16 @@ export function convertirLignes(lignes: Cellule[][], roles: RoleColonne[]): Resu
   const [iDate, iLib, iRef, iMontant, iDebit, iCredit] = (["date", "libelle", "reference", "montant", "debit", "credit"] as const).map(col);
   const resultat: LigneImport[] = [];
   let ignorees = 0;
+  const soldes: ResultatConversion["soldes"] = { initial: null, final: null };
   for (const l of lignes) {
+    const solde = lireSolde(l);
+    if (solde !== null) {
+      // Avant la première opération : solde initial ; ensuite : solde final (le dernier l'emporte)
+      if (resultat.length === 0 && soldes.initial === null) soldes.initial = solde;
+      else if (resultat.length > 0) soldes.final = solde;
+      ignorees++;
+      continue;
+    }
     const date = iDate >= 0 ? lireDate(l[iDate]) : null;
     let montant: number | null = null;
     if (iMontant >= 0) montant = lireMontant(l[iMontant]);
@@ -402,7 +413,120 @@ export function convertirLignes(lignes: Cellule[][], roles: RoleColonne[]): Resu
     const reference = iRef >= 0 ? String(l[iRef] ?? "").trim() || null : null;
     resultat.push({ date, libelle: (libelle || reference || "Opération").slice(0, 300), reference, montant });
   }
-  return { lignes: resultat, ignorees };
+  return { lignes: resultat, ignorees, soldes };
+}
+
+/** Ligne de solde (« SOLDE PRECEDENT … 100 000 », « Solde au 31/03 … 162 900 ») : son montant, sinon null. */
+function lireSolde(l: Cellule[]): number | null {
+  const textes = l.map((c) => (c instanceof Date ? "" : String(c ?? "")));
+  const libelle = textes.find((t) => /^(ancien |nouveau )?solde\b/i.test(sansAccents(t).trim()));
+  if (!libelle || /total|mouvement/i.test(sansAccents(textes.join(" ")))) return null;
+  // Le montant : la dernière cellule numérique de la ligne (hors dates)
+  const montants = textes.filter((t) => t !== libelle && !lireDate(t)).map((t) => lireMontant(t)).filter((m): m is number => m !== null);
+  if (montants.length === 0) return null;
+  const m = montants[montants.length - 1];
+  return /debiteur/.test(sansAccents(libelle)) ? -Math.abs(m) : m;
+}
+
+// ---------------------------------------------------------------------------
+// Relevés PDF : reconstruction du tableau à partir de la position des textes
+// ---------------------------------------------------------------------------
+
+/** Morceau de texte extrait d'un PDF (coordonnées PDF : y croît vers le haut). */
+export interface ElementPDF {
+  page: number;
+  texte: string;
+  x: number;
+  y: number;
+  largeur: number;
+  hauteur: number;
+}
+
+interface Segment {
+  x0: number;
+  x1: number;
+  texte: string;
+}
+
+/** Regroupe les éléments en lignes (même page, même hauteur) puis en segments (mots proches). */
+function lignesPDF(elements: ElementPDF[]): Segment[][] {
+  const tries = elements
+    .filter((e) => e.texte.trim())
+    .sort((a, b) => a.page - b.page || b.y - a.y || a.x - b.x);
+  const lignes: ElementPDF[][] = [];
+  for (const e of tries) {
+    const derniere = lignes[lignes.length - 1];
+    const tolerance = Math.max(2, (derniere?.[0]?.hauteur ?? e.hauteur) * 0.4);
+    if (derniere && derniere[0].page === e.page && Math.abs(derniere[0].y - e.y) <= tolerance) derniere.push(e);
+    else lignes.push([e]);
+  }
+  return lignes.map((l) => {
+    const segments: Segment[] = [];
+    for (const e of l.sort((a, b) => a.x - b.x)) {
+      const precedent = segments[segments.length - 1];
+      // Écart inférieur à ~1 caractère : même cellule (mots d'un libellé, chiffres d'un montant)
+      const ecart = Math.max(3, e.hauteur * 0.9);
+      if (precedent && e.x - precedent.x1 <= ecart) {
+        const espace = e.x - precedent.x1 > e.hauteur * 0.15 && !precedent.texte.endsWith(" ") ? " " : "";
+        precedent.texte += espace + e.texte;
+        precedent.x1 = Math.max(precedent.x1, e.x + e.largeur);
+      } else {
+        segments.push({ x0: e.x, x1: e.x + e.largeur, texte: e.texte });
+      }
+    }
+    return segments.map((s) => ({ ...s, texte: s.texte.replace(/\s+/g, " ").trim() })).filter((s) => s.texte);
+  });
+}
+
+function estEntete(segments: Segment[]): boolean {
+  const roles = devinerColonnes(segments.map((s) => s.texte));
+  return roles.includes("date") && (roles.includes("montant") || roles.includes("debit") || roles.includes("credit"));
+}
+
+/**
+ * Reconstruit le tableau d'un relevé PDF : la ligne d'en-têtes (Date, Libellé, Débit, Crédit…) donne
+ * les colonnes ; chaque texte va dans la colonne à sa verticale. Les libellés sur plusieurs lignes sont
+ * rattachés à l'opération précédente ; les en-têtes répétés à chaque page sont ignorés.
+ * Renvoie [en-têtes, ...lignes], prêt pour le choix des colonnes. Sans en-tête reconnu : texte brut par ligne.
+ */
+export function tableauPDF(elements: ElementPDF[]): Cellule[][] {
+  const lignes = lignesPDF(elements);
+  const iEntete = lignes.findIndex(estEntete);
+  if (iEntete < 0) return lignes.map((l) => l.map((s) => s.texte));
+
+  const entete = lignes[iEntete];
+  const roles = devinerColonnes(entete.map((s) => s.texte));
+  // Frontières entre colonnes : milieu de l'espace entre deux en-têtes
+  const frontieres = entete.slice(1).map((s, i) => (entete[i].x1 + s.x0) / 2);
+  const colonne = (s: Segment) => {
+    const centre = (s.x0 + s.x1) / 2;
+    const i = frontieres.findIndex((f) => centre < f);
+    return i < 0 ? entete.length - 1 : i;
+  };
+  const iDate = roles.indexOf("date");
+  const iLibelle = roles.indexOf("libelle");
+  const colonnesMontant = roles.flatMap((r, i) => (r === "montant" || r === "debit" || r === "credit" ? [i] : []));
+
+  const resultat: string[][] = [entete.map((s) => s.texte)];
+  for (const segments of lignes.slice(iEntete + 1)) {
+    if (estEntete(segments)) continue; // en-tête répété sur une nouvelle page
+    const ligne = entete.map(() => "");
+    for (const s of segments) {
+      const i = colonne(s);
+      ligne[i] = ligne[i] ? `${ligne[i]} ${s.texte}` : s.texte;
+    }
+    const aDate = iDate >= 0 && lireDate(ligne[iDate]) !== null;
+    const aMontant = colonnesMontant.some((i) => lireMontant(ligne[i]) !== null);
+    const precedente = resultat.length > 1 ? resultat[resultat.length - 1] : null;
+    // Suite d'un libellé sur la ligne suivante : du texte dans la seule colonne Libellé
+    const seulLibelle = iLibelle >= 0 && ligne.every((t, i) => !t || i === iLibelle);
+    if (!aDate && !aMontant && seulLibelle && precedente && lireDate(precedente[iDate]) !== null) {
+      precedente[iLibelle] = `${precedente[iLibelle]} ${ligne[iLibelle]}`.trim();
+      continue;
+    }
+    resultat.push(ligne);
+  }
+  return resultat;
 }
 
 /** Période et total des lignes importées (pour préremplir le relevé). */

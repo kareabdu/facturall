@@ -32,7 +32,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 
 import { ChoixCompte } from "@/components/compta";
-import { ChampMontantSigne, ImportReleve, MontantSigne } from "@/components/rapprochement";
+import { ChampMontantSigne, ImportReleve, MontantSigne, type ReleveImporte } from "@/components/rapprochement";
 import { Alerte, Badge, Bouton, Carte, Champ, Chargement, Indicateur, Liste } from "@/components/ui";
 import { useCompta } from "@/lib/compta";
 import { useEspace } from "@/lib/espace";
@@ -99,7 +99,8 @@ function NouveauReleve() {
   const tresoreries = useMemo(() => journaux.filter((j) => j.actif && TYPES_TRESORERIE.includes(j.type)), [journaux]);
   const [journalId, setJournalId] = useState(tresoreries.find((j) => j.type === "banque")?.id ?? tresoreries[0]?.id ?? "");
   const [debut, setDebut] = useState("");
-  const [fin, setFin] = useState(aujourdhui());
+  // Vide : date de la dernière opération importée (ou aujourd'hui sans import)
+  const [fin, setFin] = useState("");
   const [soldeInitial, setSoldeInitial] = useState<number | null>(null);
   const [soldeFinal, setSoldeFinal] = useState<number | null>(null);
   const [precedent, setPrecedent] = useState<{ journalId: string; releve: ReleveBancaire | null } | null>(null);
@@ -124,11 +125,13 @@ function NouveauReleve() {
   if (!peutSaisir) return <Alerte>La saisie des relevés est réservée à la comptabilité.</Alerte>;
   if (tresoreries.length === 0) return <Alerte>Aucun journal de banque, de caisse ou de Mobile Money.</Alerte>;
 
-  async function creer(import_?: { lignes: LigneImport[]; source: SourceReleve; fichier: string }) {
+  async function creer(import_?: ReleveImporte) {
     if (!entreprise) return;
     const resume = import_ ? resumeLignes(import_.lignes) : null;
-    const dateDebut = debut || lendemain || resume?.debut || fin;
-    const dateFin = import_ && resume?.fin && resume.fin > fin ? resume.fin : fin;
+    const dateFin = fin || resume?.fin || aujourdhui();
+    const dateDebut = debut || lendemain || resume?.debut || dateFin;
+    // Soldes : saisis > lus sur le relevé > repris du relevé précédent > calculés
+    const soldeDepart = soldeInitial ?? import_?.soldes.initial ?? dernier?.solde_final ?? 0;
     setErreur(null);
     setEnvoi(true);
     try {
@@ -137,9 +140,9 @@ function NouveauReleve() {
         journalId,
         dateDebut: dateDebut < dateFin ? dateDebut : dateFin,
         dateFin,
-        soldeInitial: initial,
-        // Sans solde final saisi : celui que donnent les mouvements (à vérifier sur le relevé papier)
-        soldeFinal: soldeFinal ?? initial + (resume?.total ?? 0),
+        soldeInitial: soldeDepart,
+        // Sans solde final saisi ni lu : celui que donnent les mouvements (à vérifier sur le relevé papier)
+        soldeFinal: soldeFinal ?? import_?.soldes.final ?? soldeDepart + (resume?.total ?? 0),
         lignes: import_?.lignes,
         source: import_?.source ?? "manuel",
         fichier: import_?.fichier,
@@ -166,7 +169,7 @@ function NouveauReleve() {
               ))}
             </Liste>
             <Champ libelle="Du" type="date" value={debut || lendemain} onChange={(e) => setDebut(e.target.value)} aide="Vide : début des opérations importées" />
-            <Champ libelle="Au" type="date" value={fin} onChange={(e) => setFin(e.target.value)} />
+            <Champ libelle="Au" type="date" value={fin} onChange={(e) => setFin(e.target.value)} aide="Vide : dernière opération importée" />
             <ChampMontantSigne
               libelle="Solde initial"
               valeur={initial}
@@ -177,7 +180,7 @@ function NouveauReleve() {
               libelle="Solde final"
               valeur={soldeFinal ?? 0}
               onChange={setSoldeFinal}
-              aide={soldeFinal === null ? "Vide : calculé d’après les opérations" : "Tel qu’indiqué sur le relevé"}
+              aide={soldeFinal === null ? "Vide : lu sur le relevé ou calculé" : "Tel qu’indiqué sur le relevé"}
             />
           </div>
         </Carte>

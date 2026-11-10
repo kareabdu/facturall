@@ -86,10 +86,10 @@ achats (fournisseurs, factures fournisseurs, paiements, avoirs), stock (articles
 automatiques à la validation des factures et avoirs, entrées/sorties manuelles, transferts, inventaires),
 design (palette partagée `@facturall/core/design`, mode sombre auto/manuel, logo), mobile : vente au comptoir
 (onglet Vendre, `@facturall/core` `caisse`, ticket partageable) et trésorerie (onglet Caisse), rapprochement bancaire
-(`releves_bancaires`, `lignes_releve`, import CSV / Excel ou saisie, pointage manuel et automatique, frais
+(`releves_bancaires`, `lignes_releve`, import PDF (pdf.js, tableau reconstruit par `tableauPDF`) / CSV / Excel
+ou saisie, soldes lus sur le relevé, pointage manuel et automatique, frais
 comptabilisés depuis le relevé, état de rapprochement, validation RB-AAAA-NNNNN).
 
 À faire, dans l'ordre prévu :
-1. Lecture des relevés **PDF** (aujourd'hui : CSV / Excel .xlsx ou saisie manuelle).
-2. Clôture d'exercice et états financiers SYSCOHADA (bilan, compte de résultat), dont la variation de stock
+1. Clôture d'exercice et états financiers SYSCOHADA (bilan, compte de résultat), dont la variation de stock
    (603x / 3x, inventaire intermittent) à partir de la valorisation CMUP.

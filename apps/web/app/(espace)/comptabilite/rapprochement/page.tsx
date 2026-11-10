@@ -38,7 +38,7 @@ export default function PageRapprochement() {
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-3">
         <p className="max-w-2xl text-sm text-muted">
-          Importez le relevé de la banque (CSV, Excel) ou saisissez-le, puis pointez chaque opération avec la comptabilité.
+          Importez le relevé de la banque (PDF, Excel, CSV) ou saisissez-le, puis pointez chaque opération avec la comptabilité.
           Les frais et agios connus seulement de la banque se comptabilisent directement depuis le relevé.
         </p>
         {peutSaisir && (
