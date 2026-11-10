@@ -1,4 +1,4 @@
-import { peutSaisirCompta } from '@facturall/core';
+import { peutSaisirCompta, peutVendre } from '@facturall/core';
 import { NativeTabs } from 'expo-router/native-tabs';
 import type { ComponentProps } from 'react';
 import { Platform } from 'react-native';
@@ -26,6 +26,12 @@ export default function AppTabs() {
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>Accueil</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon {...icone('square.grid.2x2.fill', require('@/assets/images/tabIcons/home.png'))} />
+      </NativeTabs.Trigger>
+
+      {/* Vente au comptoir : tous les rôles sauf lecteur */}
+      <NativeTabs.Trigger name="vente" hidden={!peutVendre(role)}>
+        <NativeTabs.Trigger.Label>Vendre</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon {...icone('cart.fill', require('@/assets/images/tabIcons/explore.png'))} />
       </NativeTabs.Trigger>
 
       {/* Recettes et dépenses : réservé à la comptabilité */}

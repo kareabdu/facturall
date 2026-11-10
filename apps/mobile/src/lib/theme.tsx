@@ -1,5 +1,5 @@
 // localStorage (expo-sqlite) doit être installé avant de lire la préférence
-import 'expo-sqlite/localStorage/install';
+import '@/lib/stockage';
 
 import {
   lirePreferenceTheme,
