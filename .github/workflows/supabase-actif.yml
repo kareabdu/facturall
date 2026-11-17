@@ -1,0 +1,39 @@
+# Garde le projet Supabase (offre gratuite) actif : sans requête pendant 7 jours,
+# Supabase le met en pause. Une lecture anonyme suffit (la RLS renvoie une liste vide).
+# Secrets du dépôt requis : SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY.
+name: Supabase actif
+
+on:
+  schedule:
+    - cron: "17 6 */3 * *" # tous les 3 jours, 06:17 UTC
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Requête sur l'API REST
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_PUBLISHABLE_KEY" ]; then
+            echo "::error::Secrets SUPABASE_URL et SUPABASE_PUBLISHABLE_KEY manquants."
+            exit 1
+          fi
+          # anon n'a aucun droit sur les tables : Postgres répond 42501 (permission refusée),
+          # ce qui prouve que la requête a bien atteint la base.
+          code=$(curl -sS -o reponse.json -w "%{http_code}" --retry 3 --retry-delay 10 \
+            "$SUPABASE_URL/rest/v1/entreprises?select=id&limit=1" \
+            -H "apikey: $SUPABASE_PUBLISHABLE_KEY")
+          echo "Réponse HTTP : $code"
+          cat reponse.json; echo
+          if [ "$code" -lt 300 ] || grep -q '"42501"' reponse.json; then
+            echo "Base atteinte."
+          else
+            echo "::error::Supabase a répondu $code (projet en pause ou clé invalide ?)."
+            exit 1
+          fi
